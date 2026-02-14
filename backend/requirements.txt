@@ -1,0 +1,30 @@
+# FeedFlow - Dependências Python
+# FastAPI e servidor
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Banco de dados
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Validação e serialização
+pydantic==2.5.3
+pydantic[email]==2.5.3
+
+# Utilitários
+python-dotenv==1.0.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+supabase==2.3.4
+httpx==0.25.2
+gotrue<2.0.0
+
+# Logging e monitoramento
+loguru==0.7.2
+
+# Testes (opcional)
+pytest==7.4.4
+pytest-asyncio==0.23.3
+httpx==0.25.2

@@ -1,0 +1,34 @@
+
+services:
+  # Backend FastAPI
+  backend:
+    build: ./backend
+    container_name: feedflow_backend
+    environment:
+      UPLOAD_DIR: /app/uploads/screenshots
+      DEBUG: "true"
+      HOST: 0.0.0.0
+      PORT: 8000
+      USE_SUPABASE: "true"
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+      SLACK_CLIENT_ID: ${SLACK_CLIENT_ID}
+      SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET}
+      SLACK_REDIRECT_URI: ${SLACK_REDIRECT_URI}
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    ports:
+      - "8000:8000"
+    networks:
+      - feedflow_network
+    restart: unless-stopped
+
+volumes:
+  uploads_data:
+    driver: local
+
+networks:
+  feedflow_network:
+    driver: bridge
