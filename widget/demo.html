@@ -204,6 +204,126 @@
             margin-top: 40px;
             opacity: 0.8;
         }
+
+        /* Auth Section Styles */
+        .auth-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .auth-section h2 {
+            text-align: center;
+            color: #1F2937;
+            margin-bottom: 24px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6B7280;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .auth-result.success {
+            background: #D1FAE5;
+            border: 1px solid #10B981;
+            color: #065F46;
+        }
+
+        .auth-result.error {
+            background: #FEE2E2;
+            border: 1px solid #EF4444;
+            color: #991B1B;
+        }
+
+        .user-info {
+            background: #F3F4F6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .user-info h4 {
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .user-info p {
+            color: #6B7280;
+            font-size: 14px;
+            margin: 4px 0;
+        }
+
+        .btn-slack {
+            background: #4A154B;
+            margin-top: 16px;
+        }
+
+        .btn-slack:hover {
+            background: #611f69;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +331,61 @@
         <div class="header">
             <h1>🚀 FeedFlow Widget</h1>
             <p>Demo de Captura de Feedback Visual</p>
+        </div>
+
+        <!-- Auth Section -->
+        <div class="auth-section">
+            <h2>🔐 Autenticação</h2>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Criar Conta</button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form active" id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required placeholder="seu@email.com" />
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Senha:</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" />
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Entrar</button>
+            </form>
+
+            <!-- Register Form -->
+            <form class="auth-form" id="register-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="register-email">Email:</label>
+                    <input type="email" id="register-email" required placeholder="seu@email.com" />
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Senha:</label>
+                    <input type="password" id="register-password" required placeholder="••••••••" minlength="6" />
+                </div>
+                <button type="submit" class="btn" id="register-btn" style="width: 100%;">
+                    <span id="register-btn-text">Criar Conta</span>
+                </button>
+            </form>
+
+            <!-- Result Message -->
+            <div class="auth-result" id="auth-result"></div>
+
+            <!-- User Info -->
+            <div class="user-info" id="user-info">
+                <h4>✅ Conectado</h4>
+                <p><strong>ID:</strong> <span id="user-id"></span></p>
+                <p><strong>Email:</strong> <span id="user-email"></span></p>
+                <button class="btn btn-slack" id="slack-btn" onclick="connectSlack()">
+                    <span id="slack-btn-text">🔗 Conectar Slack</span>
+                </button>
+                <div id="slack-status" style="margin-top: 8px; font-size: 12px; color: #6B7280; text-align: center;"></div>
+                <button class="btn" onclick="handleLogout()" style="width: 100%; margin-top: 8px; background: #6B7280;">
+                    Sair
+                </button>
+            </div>
         </div>
 
         <div class="demo-content">
@@ -342,7 +517,7 @@
 
                 alert('✅ Widget inicializado! Procure o botão no canto da tela.');
             } catch (error) {
-                alert('❌ Erro ao inicializar widget: ' + error.message);
+                alert('Erro ao inicializar widget: ' + error.message);
             }
         }
 
@@ -367,6 +542,191 @@
 
         document.getElementById('api-url').addEventListener('input', function(e) {
             localStorage.setItem('feedflow_demo_url', e.target.value);
+        });
+
+        // ==================== AUTH FUNCTIONS ====================
+        const API_URL = 'http://localhost:8000';
+        let currentToken = null;
+
+        function switchAuthTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(tab + '-form').classList.add('active');
+
+            // Clear result
+            hideAuthResult();
+        }
+
+        function showAuthResult(message, isSuccess) {
+            const result = document.getElementById('auth-result');
+            result.textContent = message;
+            result.className = 'auth-result ' + (isSuccess ? 'success' : 'error');
+            result.style.display = 'block';
+        }
+
+        function hideAuthResult() {
+            document.getElementById('auth-result').style.display = 'none';
+        }
+
+        function showUserInfo(user) {
+            document.getElementById('user-id').textContent = user.id;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-info').style.display = 'block';
+            document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
+            document.querySelectorAll('.auth-tab').forEach(t => t.style.display = 'none');
+        }
+
+        function hideUserInfo() {
+            document.getElementById('user-info').style.display = 'none';
+            document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'block');
+            document.querySelectorAll('.auth-tab').forEach(t => t.style.display = 'block');
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            hideAuthResult();
+
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const btn = document.getElementById('register-btn');
+            const btnText = document.getElementById('register-btn-text');
+
+            // Desabilita botão e mostra spinner
+            btn.disabled = true;
+            btnText.innerHTML = 'Criando conta<span class="spinner"></span>';
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentToken = data.access_token;
+                    localStorage.setItem('feedflow_token', currentToken);
+                    showAuthResult('✅ Conta criada com sucesso!', true);
+                    showUserInfo(data.user);
+                } else {
+                    showAuthResult((data.error || data.detail || 'Erro ao criar conta'), false);
+                }
+            } catch (error) {
+                showAuthResult('Erro ao criar conta: ' + error.message, false);
+            } finally {
+                // Reabilita botão e remove spinner
+                btn.disabled = false;
+                btnText.innerHTML = 'Criar Conta';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            hideAuthResult();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentToken = data.access_token;
+                    localStorage.setItem('feedflow_token', currentToken);
+                    showAuthResult('✅ Login realizado com sucesso!', true);
+                    showUserInfo(data.user);
+                } else {
+                    showAuthResult((data.error || data.detail || 'Erro ao fazer login'), false);
+                }
+            } catch (error) {
+                showAuthResult('Erro ao fazer login: ' + error.message, false);
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            currentToken = null;
+            localStorage.removeItem('feedflow_token');
+            hideUserInfo();
+            hideAuthResult();
+            showAuthResult('✅ Logout realizado!', true);
+        }
+
+        function connectSlack() {
+            if (!currentToken) {
+                alert('Faça login primeiro!');
+                return;
+            }
+
+            const btn = document.getElementById('slack-btn');
+            const btnText = document.getElementById('slack-btn-text');
+            const statusDiv = document.getElementById('slack-status');
+
+            // Desabilita botão e mostra loading
+            btn.disabled = true;
+            btnText.innerHTML = 'Conectando ao Slack<span class="spinner"></span>';
+            statusDiv.textContent = 'Redirecionando para autenticação do Slack...';
+
+            // Redirecionar para OAuth do Slack
+            setTimeout(() => {
+                window.location.href = `${API_URL}/auth/slack/install`;
+            }, 500);
+        }
+
+        // Restaurar status do Slack ao voltar
+        window.addEventListener('focus', function() {
+            const btn = document.getElementById('slack-btn');
+            const btnText = document.getElementById('slack-btn-text');
+            const statusDiv = document.getElementById('slack-status');
+
+            if (btn.disabled) {
+                btn.disabled = false;
+                btnText.innerHTML = '🔗 Conectar Slack';
+                statusDiv.innerHTML = '<span style="color: #10B981;">✅ Slack conectado com sucesso!</span>' || '';
+            }
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', async function() {
+            const savedToken = localStorage.getItem('feedflow_token');
+            
+            if (savedToken) {
+                try {
+                    const response = await fetch(`${API_URL}/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${savedToken}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentToken = savedToken;
+                        showUserInfo(data.user);
+                    } else {
+                        localStorage.removeItem('feedflow_token');
+                    }
+                } catch (error) {
+                    console.error('Token validation error:', error);
+                    localStorage.removeItem('feedflow_token');
+                }
+            }
         });
     </script>
 </body>

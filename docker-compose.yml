@@ -25,6 +25,21 @@ services:
       - feedflow_network
     restart: unless-stopped
 
+  # ngrok tunnel for OAuth (HTTPS)
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: feedflow_ngrok
+    command: http backend:8000
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - backend
+    networks:
+      - feedflow_network
+    restart: unless-stopped
+
 volumes:
   uploads_data:
     driver: local

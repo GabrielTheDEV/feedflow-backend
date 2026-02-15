@@ -1,0 +1,3 @@
+"""
+Dependências reutilizáveis do FastAPI
+"""

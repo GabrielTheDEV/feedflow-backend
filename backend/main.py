@@ -68,8 +68,9 @@ uploads_dir = os.getenv("UPLOAD_DIR", "./uploads")
 os.makedirs(uploads_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
-# Registrar rotas de autenticação Slack
-from app.routes import slack_auth
+# Registrar rotas
+from app.routes import slack_auth, auth
+app.include_router(auth.router)
 app.include_router(slack_auth.router)
 
 
@@ -205,6 +206,14 @@ async def submit_feedback_supabase(
                 webhook_url = integration.get("webhook_url")
                 logger.info("Using merchant-specific webhook for %s", merchant_id)
         
+        # Verificar se tem webhook (Slack conectado)
+        if not webhook_url:
+            logger.warning("No Slack webhook found for merchant %s", merchant_id)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Slack não está conectado. Por favor, conecte o Slack para enviar feedbacks."
+            )
+        
         send_slack_notification(
             email=customer_email,
             comment=feedback_comment,
@@ -212,6 +221,8 @@ async def submit_feedback_supabase(
             image_url=image_url,
             webhook_url=webhook_url,
         )
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.error("Erro ao enviar notificação para o Slack: %s", str(exc))
         raise HTTPException(

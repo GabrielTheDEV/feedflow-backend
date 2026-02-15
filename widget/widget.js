@@ -829,7 +829,14 @@
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error || 'Erro ao enviar feedback');
+                let errorMessage = error.error || error.detail || 'Erro ao enviar feedback';
+                
+                // Se for erro de Slack não conectado, adiciona instruções
+                if (errorMessage.toLowerCase().includes('slack')) {
+                    errorMessage += '\n\n👉 Conecte seu Slack para enviar feedbacks. Clique em "Conectar Slack" nas configurações.';
+                }
+                
+                throw new Error(errorMessage);
             }
 
             return await response.json();

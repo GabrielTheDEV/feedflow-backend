@@ -1,12 +1,14 @@
 """
 Rotas de autenticação OAuth 2.0 com Slack
 """
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status, Depends
 from fastapi.responses import RedirectResponse
+from typing import Optional, Dict, Any
 import logging
 
 from app.services.supabase_service import SupabaseManager
 from app.services.slack_oauth_service import SlackOAuthService
+from app.dependencies.auth import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,21 +16,37 @@ router = APIRouter(prefix="/auth/slack", tags=["Slack OAuth"])
 
 
 @router.get("/install")
-async def slack_install(merchant_id: str = Query(..., description="UUID do merchant que está instalando")):
+async def slack_install(
+    merchant_id: Optional[str] = Query(None, description="UUID do merchant (opcional se autenticado)"),
+    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
+):
     """
     Inicia o fluxo OAuth redirecionando para a página de autorização do Slack.
     
+    Pode ser usado de duas formas:
+    1. Com autenticação (Bearer token) - usa user_id do token
+    2. Sem autenticação - requer merchant_id como query param
+    
     Query Parameters:
-        merchant_id: UUID do merchant (será usado como state para CSRF protection)
+        merchant_id: UUID do merchant (obrigatório se não autenticado)
     """
     try:
+        # Usar user_id do token autenticado, ou merchant_id do query param
+        user_id = current_user["id"] if current_user else merchant_id
+        
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="merchant_id é obrigatório quando não autenticado"
+            )
+        
         supabase = SupabaseManager()
         oauth_service = SlackOAuthService(supabase.client)
         
-        # Usa merchant_id como state para vincular após callback
-        auth_url = oauth_service.get_authorization_url(state=merchant_id)
+        # Usa user_id como state para vincular após callback
+        auth_url = oauth_service.get_authorization_url(state=user_id)
         
-        logger.info("Redirecting merchant %s to Slack OAuth", merchant_id)
+        logger.info("Redirecting user %s to Slack OAuth", user_id)
         return RedirectResponse(url=auth_url)
     
     except ValueError as exc:
@@ -93,13 +111,11 @@ async def slack_callback(
             integration.get("channel_name"),
         )
         
-        # Redirecionar para página de sucesso (ajustar conforme seu frontend)
-        return {
-            "status": "success",
-            "message": "Slack conectado com sucesso!",
-            "team_name": integration.get("team_name"),
-            "channel_name": integration.get("channel_name"),
-        }
+        # Redirecionar para o Slack workspace
+        team_id = oauth_data.get("team", {}).get("id")
+        slack_url = f"https://app.slack.com/client/{team_id}" if team_id else "https://slack.com/signin"
+        
+        return RedirectResponse(url=slack_url, status_code=status.HTTP_303_SEE_OTHER)
     
     except ValueError as exc:
         logger.error("OAuth exchange error: %s", str(exc))
