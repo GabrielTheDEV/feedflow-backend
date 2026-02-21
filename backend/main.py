@@ -19,6 +19,7 @@ from app.schemas.schemas import FeedbackResponse, ErrorResponse, SuccessResponse
 from app.services.feedback_service import FeedbackService
 from app.services.supabase_service import SupabaseManager
 from app.services.slack_service import send_slack_notification
+from app.services.ai_analysis_service import AIAnalysisService
 
 # Configuração de logging
 logging.basicConfig(
@@ -63,10 +64,17 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+
 # Servir arquivos estáticos (screenshots)
 uploads_dir = os.getenv("UPLOAD_DIR", "./uploads")
 os.makedirs(uploads_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
+# Servir widget.js publicamente
+static_dir = os.path.join(os.path.dirname(__file__), "app", "static")
+if not os.path.exists(static_dir):
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Registrar rotas
 from app.routes import slack_auth, auth
@@ -213,6 +221,33 @@ async def submit_feedback_supabase(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Slack não está conectado. Por favor, conecte o Slack para enviar feedbacks."
             )
+        
+        # ========== ANÁLISE DE IA ==========
+        ai_analysis = None
+        console_logs = None
+        page_url = None
+        
+        if metadata_obj:
+            console_logs = metadata_obj.get("console_logs")
+            page_url = metadata_obj.get("page_url")
+        
+        # Executar análise de IA
+        ai_service = AIAnalysisService()
+        ai_analysis = ai_service.analyze_bug(
+            comment=feedback_comment,
+            console_logs=console_logs,
+            page_url=page_url,
+            user_agent=metadata_obj.get("user_agent") if metadata_obj else None
+        )
+        
+        if ai_analysis:
+            logger.info(f"Análise de IA concluída: severity={ai_analysis.get('severity')}")
+            # Adicionar análise de IA aos metadados
+            if not metadata_obj:
+                metadata_obj = {}
+            metadata_obj["ai_analysis"] = ai_analysis
+        
+        # ===================================
         
         send_slack_notification(
             email=customer_email,
