@@ -1,3 +1,11 @@
+"""
+Schemas (DTOs) do FeedFlow usando Pydantic
+Define contratos de entrada e saída da API
+"""
+from datetime import datetime
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, EmailStr, validator
+
 class WidgetConfig(BaseModel):
     buttonText: Optional[str] = "Reportar Problema"
     buttonPosition: Optional[str] = "bottom-right"
@@ -6,13 +14,7 @@ class WidgetConfig(BaseModel):
 class WidgetGenerateRequest(BaseModel):
     domain: str
     widgetConfig: WidgetConfig
-"""
-Schemas (DTOs) do FeedFlow usando Pydantic
-Define contratos de entrada e saída da API
-"""
-from datetime import datetime
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field, EmailStr, validator
+
 
 
 class MerchantBase(BaseModel):
