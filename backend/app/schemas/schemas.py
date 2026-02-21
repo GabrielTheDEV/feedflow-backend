@@ -1,3 +1,11 @@
+class WidgetConfig(BaseModel):
+    buttonText: Optional[str] = "Reportar Problema"
+    buttonPosition: Optional[str] = "bottom-right"
+    primaryColor: Optional[str] = "#4F46E5"
+
+class WidgetGenerateRequest(BaseModel):
+    domain: str
+    widgetConfig: WidgetConfig
 """
 Schemas (DTOs) do FeedFlow usando Pydantic
 Define contratos de entrada e saída da API

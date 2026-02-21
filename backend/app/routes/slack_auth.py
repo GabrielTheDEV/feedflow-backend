@@ -1,11 +1,11 @@
 """
 Rotas de autenticação OAuth 2.0 com Slack
 """
+
 from fastapi import APIRouter, HTTPException, Query, status, Depends
 from fastapi.responses import RedirectResponse
 from typing import Optional, Dict, Any
 import logging
-
 from app.services.supabase_service import SupabaseManager
 from app.services.slack_oauth_service import SlackOAuthService
 from app.dependencies.auth import get_current_user_optional
@@ -22,33 +22,28 @@ async def slack_install(
 ):
     """
     Inicia o fluxo OAuth redirecionando para a página de autorização do Slack.
-    
     Pode ser usado de duas formas:
     1. Com autenticação (Bearer token) - usa user_id do token
     2. Sem autenticação - requer merchant_id como query param
-    
+
     Query Parameters:
         merchant_id: UUID do merchant (obrigatório se não autenticado)
     """
     try:
-        # Usar user_id do token autenticado, ou merchant_id do query param
         user_id = current_user["id"] if current_user else merchant_id
-        
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="merchant_id é obrigatório quando não autenticado"
             )
-        
+
         supabase = SupabaseManager()
         oauth_service = SlackOAuthService(supabase.client)
-        
-        # Usa user_id como state para vincular após callback
+
         auth_url = oauth_service.get_authorization_url(state=user_id)
-        
         logger.info("Redirecting user %s to Slack OAuth", user_id)
         return RedirectResponse(url=auth_url)
-    
+
     except ValueError as exc:
         logger.error("Configuration error: %s", str(exc))
         raise HTTPException(
@@ -56,10 +51,10 @@ async def slack_install(
             detail="Configuração do Slack OAuth está incompleta"
         )
     except Exception as exc:
-        logger.error("Unexpected error in /install: %s", str(exc))
+        logger.error("Slack install error: %s", str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao iniciar instalação do Slack"
+            detail="Erro ao iniciar OAuth com Slack"
         )
 
 
@@ -71,52 +66,45 @@ async def slack_callback(
 ):
     """
     Callback do OAuth do Slack. Troca o código pelo access_token e salva no banco.
-    
     Query Parameters:
         code: Código de autorização temporário
         state: merchant_id passado no /install
         error: Mensagem de erro se o usuário negou acesso
     """
-    # Verificar se houve erro na autorização
     if error:
         logger.warning("Slack OAuth denied: %s", error)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Autorização negada pelo usuário: {error}"
         )
-    
+
     if not state:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Parâmetro 'state' (merchant_id) é obrigatório"
         )
-    
+
     merchant_id = state
-    
+
     try:
         supabase = SupabaseManager()
         oauth_service = SlackOAuthService(supabase.client)
-        
-        # Trocar código pelo access_token
-        logger.info("Exchanging code for token for merchant %s", merchant_id)
+
         oauth_data = await oauth_service.exchange_code_for_token(code)
-        
-        # Salvar no banco
         integration = oauth_service.save_integration(merchant_id, oauth_data)
-        
+
         logger.info(
             "Slack integration completed for merchant %s - Team: %s, Channel: %s",
             merchant_id,
             integration.get("team_name"),
             integration.get("channel_name"),
         )
-        
-        # Redirecionar para o Slack workspace
+
         team_id = oauth_data.get("team", {}).get("id")
         slack_url = f"https://app.slack.com/client/{team_id}" if team_id else "https://slack.com/signin"
-        
+
         return RedirectResponse(url=slack_url, status_code=status.HTTP_303_SEE_OTHER)
-    
+
     except ValueError as exc:
         logger.error("OAuth exchange error: %s", str(exc))
         raise HTTPException(
@@ -139,9 +127,9 @@ async def slack_disconnect(merchant_id: str = Query(..., description="UUID do me
     try:
         supabase = SupabaseManager()
         oauth_service = SlackOAuthService(supabase.client)
-        
+
         success = oauth_service.delete_integration(merchant_id)
-        
+
         if success:
             return {"status": "success", "message": "Slack desconectado com sucesso"}
         else:
@@ -149,7 +137,7 @@ async def slack_disconnect(merchant_id: str = Query(..., description="UUID do me
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Integração não encontrada"
             )
-    
+
     except Exception as exc:
         logger.error("Error disconnecting Slack: %s", str(exc))
         raise HTTPException(
@@ -166,9 +154,9 @@ async def slack_status(merchant_id: str = Query(..., description="UUID do mercha
     try:
         supabase = SupabaseManager()
         oauth_service = SlackOAuthService(supabase.client)
-        
+
         integration = oauth_service.get_integration(merchant_id)
-        
+
         if integration:
             return {
                 "connected": True,
@@ -177,7 +165,7 @@ async def slack_status(merchant_id: str = Query(..., description="UUID do mercha
             }
         else:
             return {"connected": False}
-    
+
     except Exception as exc:
         logger.error("Error checking Slack status: %s", str(exc))
         raise HTTPException(

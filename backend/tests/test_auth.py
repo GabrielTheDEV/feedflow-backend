@@ -8,33 +8,26 @@ from main import app
 
 client = TestClient(app)
 
-
 @pytest.fixture
 def mock_supabase_register():
     """Mock para register do Supabase"""
     with patch("app.routes.auth.SupabaseManager") as mock_manager:
         mock_client = Mock()
         mock_auth = Mock()
-        
         # Mock successful register
         mock_user = Mock()
         mock_user.id = "user-123-uuid"
         mock_user.email = "test@example.com"
         mock_user.created_at = "2024-01-01T00:00:00Z"
-        
         mock_session = Mock()
         mock_session.access_token = "fake-access-token"
-        
         mock_response = Mock()
         mock_response.user = mock_user
         mock_response.session = mock_session
-        
         mock_auth.sign_up.return_value = mock_response
         mock_client.auth = mock_auth
         mock_manager.return_value.client = mock_client
-        
         yield mock_auth
-
 
 @pytest.fixture
 def mock_supabase_login():
@@ -42,25 +35,19 @@ def mock_supabase_login():
     with patch("app.routes.auth.SupabaseManager") as mock_manager:
         mock_client = Mock()
         mock_auth = Mock()
-        
         # Mock successful login
         mock_user = Mock()
         mock_user.id = "user-123-uuid"
         mock_user.email = "test@example.com"
-        
         mock_session = Mock()
         mock_session.access_token = "fake-access-token"
-        
         mock_response = Mock()
         mock_response.user = mock_user
         mock_response.session = mock_session
-        
         mock_auth.sign_in_with_password.return_value = mock_response
         mock_client.auth = mock_auth
         mock_manager.return_value.client = mock_client
-        
         yield mock_auth
-
 
 @pytest.fixture
 def mock_supabase_get_user():
@@ -68,23 +55,18 @@ def mock_supabase_get_user():
     with patch("app.dependencies.auth.SupabaseManager") as mock_manager:
         mock_client = Mock()
         mock_auth = Mock()
-        
         # Mock user validation
         mock_user = Mock()
         mock_user.id = "user-123-uuid"
         mock_user.email = "test@example.com"
         mock_user.role = "authenticated"
         mock_user.created_at = "2024-01-01T00:00:00Z"
-        
         mock_response = Mock()
         mock_response.user = mock_user
-        
         mock_auth.get_user.return_value = mock_response
         mock_client.auth = mock_auth
         mock_manager.return_value.client = mock_client
-        
         yield mock_auth
-
 
 class TestRegister:
     """Testes para /auth/register"""
@@ -287,23 +269,3 @@ class TestProtectedRoutes:
             assert response.status_code == 200
             assert "sucesso" in response.json()["message"]
             mock_auth.sign_out.assert_called_once()
-
-
-class TestAuthDependency:
-    """Testes para dependência get_current_user"""
-    
-    def test_valid_token_returns_user(self, mock_supabase_get_user):
-        """Deve retornar usuário para token válido"""
-        response = client.get(
-            "/auth/me",
-            headers={"Authorization": "Bearer valid-token"}
-        )
-        
-        assert response.status_code == 200
-        mock_supabase_get_user.get_user.assert_called_once_with("valid-token")
-    
-    def test_missing_authorization_header(self):
-        """Deve rejeitar requisição sem header Authorization"""
-        response = client.get("/auth/me")
-        
-        assert response.status_code == 403

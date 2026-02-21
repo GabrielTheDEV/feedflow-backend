@@ -21,6 +21,8 @@ class Merchant(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     shop_url = Column(String(255), unique=True, nullable=False, index=True)
     api_token = Column(String(255), unique=True, nullable=False, index=True)
+    domain = Column(String(255), unique=False, nullable=False, index=True)  # Domínio autorizado para o token
+    widget_config = Column(JSON, nullable=True)  # Configurações do widget
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_active = Column(Integer, default=1, nullable=False)  # 1 = ativo, 0 = inativo
