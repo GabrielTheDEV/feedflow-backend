@@ -945,7 +945,32 @@
         }
     };
 
+
     // Expor no escopo global
     window.FeedFlowWidget = FeedFlowWidget;
+
+    // Auto-init: busca configurações no <script> que carregou o widget
+    (function() {
+        const currentScript = document.currentScript || (function() {
+            const scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+        })();
+
+        if (currentScript) {
+            const apiToken = currentScript.getAttribute('data-api-token');
+            const apiUrl = currentScript.getAttribute('data-api-url');
+            const domain = currentScript.getAttribute('data-domain');
+            if (apiToken) {
+                window.FeedFlowWidget.init({
+                    apiToken: apiToken,
+                    apiUrl: apiUrl || undefined,
+                    buttonText: currentScript.getAttribute('data-button-text') || '',
+                    buttonPosition: currentScript.getAttribute('data-button-position') || undefined,
+                    primaryColor: currentScript.getAttribute('data-primary-color') || undefined,
+                    domain: domain || undefined
+                });
+            }
+        }
+    })();
 
 })(window);
