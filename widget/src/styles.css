@@ -1,0 +1,55 @@
+#feedflow-trigger-btn {
+  position: fixed;
+  background: #4F46E5;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999998;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#feedflow-trigger-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+#feedflow-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+#feedflow-fullscreen-viewer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#feedflow-screenshot-img {
+  cursor: pointer;
+}

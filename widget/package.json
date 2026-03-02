@@ -1,0 +1,22 @@
+{
+  "name": "feedflow-widget",
+  "version": "1.0.0",
+  "description": "Widget de feedback visual FeedFlow",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run --environment jsdom",
+    "test:watch": "vitest --environment jsdom",
+    "test:coverage": "vitest run --environment jsdom --coverage"
+  },
+  "dependencies": {
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.6.1",
+    "jsdom": "^24.1.1",
+    "vite": "^4.0.0",
+    "vitest": "^1.6.1"
+  }
+}
