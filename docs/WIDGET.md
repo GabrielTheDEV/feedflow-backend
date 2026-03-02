@@ -159,3 +159,107 @@ Fluxo recomendado:
 - O arquivo original legado do widget foi mantido para comparação/análise.
 - A versão modular mantém a mesma lógica funcional, com organização por responsabilidade.
 - Para CSP mais restrita, o bundle com `html2canvas` empacotado evita dependência externa de CDN.
+
+## Módulos de contexto e captura técnica
+
+O widget coleta contexto técnico do bug automaticamente, incluindo:
+
+### Navegação
+- Exposto por: `getNavigationContext()`
+- Retorno:
+```js
+{
+  url: window.location.href, // URL completa
+  path: window.location.pathname // Caminho
+}
+```
+- Sempre seguro, nunca lança erro.
+
+### Console (logs, warnings, erros, info)
+- Instrumentação automática via `instrumentConsole()`
+- Bufferiza últimos 50 eventos (FIFO, circular buffer)
+- Cada entrada:
+```js
+{
+  level: 'log' | 'warn' | 'error' | 'info',
+  message: string, // até 1000 caracteres
+  timestamp: number, // ms
+  source: 'console'
+}
+```
+- Exposto por: `getConsoleBuffer()`
+- Não quebra comportamento original do console.
+- Idempotente e seguro para múltiplas chamadas.
+
+### Erros globais
+- Instrumentação via `instrumentGlobalErrors()`
+- Captura:
+  - `window.onerror` (source: 'window.onerror')
+  - `window.onunhandledrejection` (source: 'unhandledrejection')
+- Entradas vão para o mesmo buffer do console.
+
+### Falhas de rede (fetch/XHR)
+- Instrumentação via `instrumentNetwork()`
+- Bufferiza últimos 50 requests falhos (status >= 400 ou erro de rede)
+- Cada entrada:
+```js
+{
+  type: 'fetch' | 'xhr',
+  method: string,
+  url: string,
+  status: number | null,
+  duration: number, // ms
+  success: boolean,
+  error?: string,
+  timestamp: number
+}
+```
+- Exposto por: `getNetworkBuffer()`
+- Não bloqueia requests, idempotente, seguro.
+
+## Exemplo de uso dos módulos
+
+```js
+import { getNavigationContext } from './context.js';
+import { instrumentConsole, getConsoleBuffer } from './consoleBuffer.js';
+import { instrumentGlobalErrors } from './errorBuffer.js';
+import { instrumentNetwork, getNetworkBuffer } from './networkBuffer.js';
+
+// Inicializar instrumentações (idempotentes)
+instrumentConsole();
+instrumentGlobalErrors();
+instrumentNetwork();
+
+// Coletar contexto para envio
+const contexto = {
+  navigation: getNavigationContext(),
+  console: getConsoleBuffer(),
+  network: getNetworkBuffer()
+};
+```
+
+## Testes automatizados dos módulos de contexto
+
+Os testes ficam em `widget/src/*.test.js` e cobrem:
+- Navegação: segurança e retorno correto
+- Console: bufferização, truncamento, idempotência
+- Erros globais: captura e idempotência
+- Rede: bufferização de falhas, idempotência
+
+Para rodar:
+```bash
+npm run test
+```
+
+Todos os testes devem passar. O relatório de cobertura pode ser gerado com:
+```bash
+npm run test:coverage
+```
+
+## Retorno dos métodos
+
+- `getNavigationContext()`: `{ url, path }`
+- `getConsoleBuffer()`: `ConsoleEntry[]`
+- `getNetworkBuffer()`: `NetworkEntry[]`
+
+Todos os métodos são seguros, nunca lançam exceção e podem ser chamados a qualquer momento.

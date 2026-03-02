@@ -223,7 +223,7 @@ export function createModal(config) {
           href=""
           target="_blank"
           rel="noopener noreferrer"
-          style="color: #6B7280; text-decoration: underline;"
+          style="color: #4F46E5; text-decoration: underline;"
         >FeedFlow</a>
       </div>
     </div>
