@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/v1", tags=["Feedback"])
 
 @router.post("/submit-feedback", response_model=SuccessResponse, status_code=status.HTTP_201_CREATED)
 async def submit_feedback(
-    screenshot: UploadFile = File(..., description="Screenshot capturado pelo widget"),
+    screenshot: UploadFile = File(None, description="Screenshot capturado pelo widget"),
     api_token: Optional[str] = Form(None, description="Token de autenticação do merchant"),
     customer_email: Optional[str] = Form(None, description="Email do cliente (opcional)"),
     customer_message: Optional[str] = Form(None, description="Mensagem do cliente (opcional)"),

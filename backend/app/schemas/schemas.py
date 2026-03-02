@@ -84,3 +84,20 @@ class SuccessResponse(BaseModel):
     """Schema padrão para respostas de sucesso"""
     message: str
     data: Optional[Dict[str, Any]] = None
+
+
+class DomainBase(BaseModel):
+    domain: str = Field(..., description="Domínio autorizado")
+
+class DomainCreate(DomainBase):
+    pass
+
+class DomainResponse(DomainBase):
+    id: int
+    token: str
+    is_active: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

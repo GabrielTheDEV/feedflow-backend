@@ -150,6 +150,7 @@ import {
     if (!response.ok) {
       const error = await response.json();
       let errorMessage = error.error || error.detail || 'Erro ao enviar feedback';
+      errorMessage = typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage);
       if (errorMessage.toLowerCase().includes('slack')) {
         errorMessage += '\n\n👉 Conecte seu Slack para enviar feedbacks. Clique em "Conectar Slack" nas configurações.';
       }

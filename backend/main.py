@@ -23,17 +23,20 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Registro dos routers
+
 from app.routes.feedback import router as feedback_router
 from app.routes.widget import router as widget_router
 from app.routes.health import router as health_router
 from app.routes.auth import router as auth_router
 from app.routes.slack_auth import router as slack_auth_router
+from app.routes.domain import router as domain_router
 
 app.include_router(feedback_router)
 app.include_router(widget_router)
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(slack_auth_router)
+app.include_router(domain_router)
 
 # Logging básico
 logging.basicConfig(level=logging.INFO)
