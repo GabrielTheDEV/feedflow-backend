@@ -61,6 +61,13 @@ logs/
 .coverage
 htmlcov/
 .tox/
+coverage/
+
+# Node / Widget
+node_modules/
+widget/node_modules/
+widget/coverage/
+widget/.vitest/
 
 # Alembic
 alembic/versions/*.pyc

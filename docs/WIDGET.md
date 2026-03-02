@@ -82,6 +82,10 @@ Artefato final para distribuição:
 
 ## Implementação e build
 
+
+
+npm install && npm run test && npm run build
+
 ### 1) Instalar dependências
 Na pasta `widget`:
 

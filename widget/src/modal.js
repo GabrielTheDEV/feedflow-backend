@@ -21,7 +21,8 @@ export function createModal(config) {
       padding: 16px;
       max-width: 360px;
       width: 90%;
-      max-height: 55vh;
+      height: fit-content;
+      max-height: min(560px, calc(100vh - 140px));
       overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       position: fixed;
@@ -209,6 +210,22 @@ export function createModal(config) {
         font-size: 14px;
         display: none;
       "></div>
+
+      <div id="feedflow-watermark" style="
+        margin-top: 12px;
+        padding-top: 4px;
+        text-align: center;
+        font-size: 12px;
+        color: #9CA3AF;
+      ">
+        Bug reported with
+        <a
+          href=""
+          target="_blank"
+          rel="noopener noreferrer"
+          style="color: #6B7280; text-decoration: underline;"
+        >FeedFlow</a>
+      </div>
     </div>
   `;
   document.body.appendChild(modal);
