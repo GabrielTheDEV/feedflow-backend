@@ -1,6 +1,11 @@
 from datetime import datetime
 from typing import Optional, Dict, Any
+from uuid import UUID
+
 from pydantic import BaseModel, Field, EmailStr, validator
+from sqlmodel import SQLModel
+
+from app.models.enums.integrationsServices import IntegrationService
 
 
 """
@@ -25,7 +30,7 @@ class CollectionRead(SQLModel):
     name: str
     api_key: str 
     plan: str
-    is_active: bool
+    active: bool
     created_at: datetime
 
 
@@ -50,7 +55,7 @@ class IntegrationEnable(SQLModel):
 class IntegrationRead(SQLModel):
     id: UUID
     service: IntegrationService
-    is_active: bool
+    active: bool
 
 
 # DTO de configuração do widget para customização visual

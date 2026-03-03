@@ -21,7 +21,7 @@ class Collection(SQLModel, table=True):
     api_key_revoked_at: Optional[datetime] = None
 
     plan: Plan = Field(default=Plan.free)
-    is_active: bool = Field(default=True)
+    active: bool = Field(default=True)
     status: Status = Field(default=Status.working)
 
     created_at: datetime = Field(default_factory=datetime.utcnow)

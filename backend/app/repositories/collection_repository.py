@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlmodel import Session, select
 
-from app.models.collection import Collection
+from app.models.collections import Collection
 
 
 class CollectionRepository:

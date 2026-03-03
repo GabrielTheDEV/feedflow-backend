@@ -3,11 +3,11 @@ Rotas de geração de widget
 """
 
 from fastapi import APIRouter, Depends, status, HTTPException
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from app.dtos.schemas import WidgetGenerateRequest, WidgetConfig
-from app.models.models import Merchant
 from app.database import get_db
-import secrets
+from app.services.widget_service import WidgetService
+
 
 router = APIRouter(prefix="/api/v1", tags=["Widget"])
 
@@ -19,22 +19,15 @@ async def generate_widget(
     """
     Gera um widget script e token para o merchant, salva configs e domínio.
     """
-    api_token = secrets.token_urlsafe(32)
-    merchant = Merchant(
-        shop_url=f"https://{request.domain}",
-        api_token=api_token,
+    
+    # Checa se domínio já existe
+    if service.domain_exists(request.domain):
+        raise HTTPException(status_code=400, detail="Domínio já cadastrado")
+    merchant, widget_script = service.create_widget(
         domain=request.domain,
-        widget_config=request.widgetConfig.dict()
-    )
-    db.add(merchant)
-    db.commit()
-    db.refresh(merchant)
-    widget_script = (
-        f"<script src='https://seu-backend.com/static/widget.js'></script>"
-        f"<script>FeedFlowWidget.init({{ apiToken: '{api_token}', buttonText: '{request.widgetConfig.buttonText}', "
-        f"buttonPosition: '{request.widgetConfig.buttonPosition}', primaryColor: '{request.widgetConfig.primaryColor}' }});</script>"
+        widget_config=request.widgetConfig
     )
     return {
-        "apiToken": api_token,
+        "apiToken": merchant.api_token,
         "widgetScript": widget_script
     }

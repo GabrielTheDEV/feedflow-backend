@@ -12,7 +12,7 @@ class Integration(SQLModel, table=True):
     collection_id: UUID = Field(foreign_key="collections.id", index=True)
 
     service: IntegrationService = Field(index=True)  # slack, jira, trello
-    is_active: bool = Field(default=True)
+    active: bool = Field(default=True)
 
     config_json: Optional[dict] = Field(default=None)
     external_id: Optional[str] = None

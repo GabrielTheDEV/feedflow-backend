@@ -29,7 +29,7 @@ from app.routes.widget import router as widget_router
 from app.routes.health import router as health_router
 from app.routes.auth import router as auth_router
 from app.routes.slack_auth import router as slack_auth_router
-from app.routes.domain import router as domain_router
+from app.routes.domain_router import router as domain_router
 
 app.include_router(feedback_router)
 app.include_router(widget_router)

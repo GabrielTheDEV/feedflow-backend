@@ -2,15 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
 
-from app.database import get_session
+from app.database import get_db
 from app.repositories.domain_repository import DomainRepository
-from app.services.domain_service import DomainService
-from app.models.domain import DomainCreate, DomainRead
+from app.services.collections.domain_service import DomainService
+from app.dtos.schemas import DomainCreate, DomainRead
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
 
 
-def get_service(session: Session = Depends(get_session)) -> DomainService:
+def get_service(session: Session = Depends(get_db)) -> DomainService:
     repo = DomainRepository(session)
     return DomainService(repo)
 

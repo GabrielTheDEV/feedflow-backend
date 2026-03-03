@@ -2,7 +2,7 @@ import secrets
 from datetime import datetime
 from uuid import UUID
 
-from app.models.collection import Collection
+from app.models.collections import Collection
 from app.repositories.collection_repository import CollectionRepository
 
 
@@ -20,6 +20,9 @@ class CollectionService:
     # create
     # =========================
     def create_collection(self, user_id: UUID, name: str) -> Collection:
+        if(user_id is None):
+            raise ValueError("User ID is required")
+
         api_key = self._generate_api_key()
 
         collection = Collection(
@@ -58,19 +61,24 @@ class CollectionService:
 
         return self.repo.save(collection)
 
-    # =========================
-    # rotate api key
-    # =========================
-    def rotate_api_key(self, collection_id: UUID) -> Collection:
-        collection = self.repo.get_by_id(collection_id)
+    def _assert_collection_limit(self, user_id: UUID):
+        count = len(self.repo.list_by_user(user_id))
+        if count >= plan_limit:
+            raise ValueError("Collection limit reached")
 
-        if not collection:
-            raise ValueError("Collection not found")
+        # =========================
+        # rotate api key
+        # =========================
+        def rotate_api_key(self, collection_id: UUID) -> Collection:
+            collection = self.repo.get_by_id(collection_id)
 
-        collection.api_key = self._generate_api_key()
-        collection.updated_at = datetime.utcnow()
+            if not collection:
+                raise ValueError("Collection not found")
 
-        return self.repo.save(collection)
+            collection.api_key = self._generate_api_key()
+            collection.updated_at = datetime.utcnow()
+
+            return self.repo.save(collection)
 
     # =========================
     # list user collections
