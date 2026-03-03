@@ -1,23 +1,63 @@
 from typing import Optional, List
 from sqlmodel import Session, select
+from uuid import UUID
+
 from app.models.domain import Domain
-from .base_repository import BaseRepository
 
 
-class DomainRepository(BaseRepository[Domain]):
-    def __init__(self):
-        super().__init__(Domain)
+class DomainRepository:
+    def __init__(self, session: Session):
+        self.session = session
 
-    def get_by_domain(
-        self, session: Session, domain: str
+
+    #criar domínio
+    def create(self, domain: Domain) -> Domain:
+        self.session.add(domain)
+        self.session.commit()
+        self.session.refresh(domain)
+        return domain
+
+
+    # buscar por id
+    def get_by_id(self, domain_id: UUID) -> Optional[Domain]:
+        statement = select(Domain).where(Domain.id == domain_id)
+        return self.session.exec(statement).first()
+
+
+
+    # buscar por domain + collection (CRÍTICO)
+    def get_by_domain_and_collection(
+        self, collection_id: UUID, domain: str
     ) -> Optional[Domain]:
-        return session.exec(
-            select(Domain).where(Domain.domain == domain)
-        ).first()
+        statement = select(Domain).where(
+            Domain.collection_id == collection_id,
+            Domain.domain == domain,
+        )
+        return self.session.exec(statement).first()
 
-    def get_by_collection(
-        self, session: Session, collection_id
-    ) -> List[Domain]:
-        return session.exec(
-            select(Domain).where(Domain.collection_id == collection_id)
-        ).all()
+    # Listar por collection
+    def list_by_collection(self, collection_id: UUID) -> List[Domain]:
+        statement = select(Domain).where(Domain.collection_id == collection_id)
+        return list(self.session.exec(statement).all())
+
+    # verificar domínio permitido 
+    def is_domain_allowed(self, collection_id: UUID, domain: str) -> bool:
+        statement = select(Domain.id).where(
+            Domain.collection_id == collection_id,
+            Domain.domain == domain,
+            Domain.active == True,
+            Domain.verified == True,
+        )
+        return self.session.exec(statement).first() is not None
+
+    #  update genérico
+    def save(self, domain: Domain) -> Domain:
+        self.session.add(domain)
+        self.session.commit()
+        self.session.refresh(domain)
+        return domain
+
+    # delete
+    def delete(self, domain: Domain) -> None:
+        self.session.delete(domain)
+        self.session.commit()

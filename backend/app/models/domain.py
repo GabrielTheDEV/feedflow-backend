@@ -8,7 +8,7 @@ class Domain(SQLModel, table=True):
     __tablename__ = "domains"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    collection_id: UUID = Field(foreign_key="collections.id", index=True)
+    collection_id: UUID = Field(foreign_key="collections.id", index=True, nullable=False)
 
     domain: str = Field(index=True)
 

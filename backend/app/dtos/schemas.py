@@ -16,6 +16,43 @@ class AuthResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class CollectionCreate(SQLModel):
+    name: str
+
+
+class CollectionRead(SQLModel):
+    id: UUID
+    name: str
+    api_key: str | None
+    plan: str
+    is_active: bool
+    created_at: datetime
+
+
+class DomainCreate(SQLModel):
+    domain: str
+
+
+class DomainRead(SQLModel):
+    id: UUID
+    domain: str
+    verified: bool
+    active: bool
+    created_at: datetime
+
+
+
+class IntegrationEnable(SQLModel):
+    service: IntegrationService
+    config: dict | None = None
+
+
+class IntegrationRead(SQLModel):
+    id: UUID
+    service: IntegrationService
+    is_active: bool
+
+
 # DTO de configuração do widget para customização visual
 class WidgetConfig(BaseModel):
     buttonText: Optional[str] = "Reportar Problema"

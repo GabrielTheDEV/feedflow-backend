@@ -34,3 +34,9 @@ class IntegrationService:
         )
 
         return self.repo.create(session, integration)
+
+
+    def connect_integration(collection_id, service, config)
+    def disconnect_integration(integration_id)
+    def list_active_integrations(collection_id)
+    def send_report_to_integrations(collection_id, payload)

@@ -13,11 +13,8 @@ class CollectionService:
     # -------------------------
     # CREATE COLLECTION
     # -------------------------
-    def create_collection(
-        self,
-        session: Session,
-        user_id,
-        name: str,
+    def create_collection( 
+        self, session: Session, user_id, name: str,
     ) -> Collection:
 
         collection = Collection(
