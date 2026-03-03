@@ -9,7 +9,7 @@ import logging
 from app.services.supabase_service import SupabaseManager
 from app.services.auth_security_service import AuthService
 from app.dependencies.auth_handlers import get_current_user
-from app.dtos.auth_dtos import AuthResponse
+from app.dtos.schemas import AuthResponse
 
 logger = logging.getLogger(__name__)
 
