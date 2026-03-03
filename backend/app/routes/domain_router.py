@@ -6,6 +6,12 @@ from app.database.config import get_db
 from app.repositories.domain_repository import DomainRepository
 from app.services.collections.domain_service import DomainService
 from app.dtos.schemas import DomainCreate, DomainRead
+from app.docs.swagger.domains_docs import (
+    ADD_DOMAIN_DOCS,
+    LIST_DOMAINS_DOCS,
+    VERIFY_DOMAIN_DOCS,
+    DEACTIVATE_DOMAIN_DOCS,
+)
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
 
@@ -18,7 +24,7 @@ def get_service(session: Session = Depends(get_db)) -> DomainService:
 # =========================
 # create
 # =========================
-@router.post("/{collection_id}", response_model=DomainRead)
+@router.post("/{collection_id}", response_model=DomainRead, **ADD_DOMAIN_DOCS)
 def add_domain(
     collection_id: UUID,
     payload: DomainCreate,
@@ -33,7 +39,7 @@ def add_domain(
 # =========================
 # list
 # =========================
-@router.get("/{collection_id}", response_model=list[DomainRead])
+@router.get("/{collection_id}", response_model=list[DomainRead], **LIST_DOMAINS_DOCS)
 def list_domains(
     collection_id: UUID,
     service: DomainService = Depends(get_service),
@@ -44,7 +50,7 @@ def list_domains(
 # =========================
 # verify
 # =========================
-@router.patch("/{domain_id}/verify", response_model=DomainRead)
+@router.patch("/{domain_id}/verify", response_model=DomainRead, **VERIFY_DOMAIN_DOCS)
 def verify_domain(
     domain_id: UUID,
     service: DomainService = Depends(get_service),
@@ -58,7 +64,7 @@ def verify_domain(
 # =========================
 # deactivate
 # =========================
-@router.patch("/{domain_id}/deactivate", response_model=DomainRead)
+@router.patch("/{domain_id}/deactivate", response_model=DomainRead, **DEACTIVATE_DOMAIN_DOCS)
 def deactivate_domain(
     domain_id: UUID,
     service: DomainService = Depends(get_service),

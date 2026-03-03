@@ -9,12 +9,13 @@ import logging
 from app.database.config import get_supabase_client
 from app.utils.auth_handlers import get_current_user
 from app.dtos.schemas import AuthResponse
+from app.docs.swagger.auth_docs import LOGOUT_DOCS, ME_DOCS
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/logout")
+@router.post("/logout", **LOGOUT_DOCS)
 async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
     """
     Fazer logout (invalidar token)
@@ -32,7 +33,7 @@ async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
             detail="Erro ao fazer logout"
         )
 
-@router.get("/me")
+@router.get("/me", **ME_DOCS)
 async def get_me(current_user: Dict[str, Any] = Depends(get_current_user)):
     """
     Obter dados do usuário autenticado

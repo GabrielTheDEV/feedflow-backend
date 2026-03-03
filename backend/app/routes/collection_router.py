@@ -7,6 +7,12 @@ from app.dtos.schemas import CollectionCreate, CollectionRead
 from app.repositories.collection_repository import CollectionRepository
 from app.services.collections.collections_service import CollectionService
 from app.utils.auth_handlers import get_current_user_id
+from app.docs.swagger.collections_docs import (
+    CREATE_COLLECTION_DOCS,
+    LIST_COLLECTIONS_DOCS,
+    DEACTIVATE_COLLECTION_DOCS,
+    ROTATE_COLLECTION_KEY_DOCS,
+)
 
 router = APIRouter(prefix="/collections", tags=["collections"])
 
@@ -16,7 +22,7 @@ def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
     return CollectionService(repo)
 
 
-@router.post("/", response_model=CollectionRead, status_code=201)
+@router.post("/", response_model=CollectionRead, status_code=201, **CREATE_COLLECTION_DOCS)
 def create_collection(
     payload: CollectionCreate,
     service: CollectionService = Depends(get_collection_service),
@@ -30,7 +36,7 @@ def create_collection(
 
 
 
-@router.get("/", response_model=list[CollectionRead])
+@router.get("/", response_model=list[CollectionRead], **LIST_COLLECTIONS_DOCS)
 def list_collections(
     service: CollectionService = Depends(get_collection_service),
     user_id: UUID = Depends(get_current_user_id),
@@ -40,7 +46,7 @@ def list_collections(
 
 
 
-@router.patch("/{collection_id}/deactivate", response_model=CollectionRead)
+@router.patch("/{collection_id}/deactivate", response_model=CollectionRead, **DEACTIVATE_COLLECTION_DOCS)
 def deactivate_collection(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),
@@ -53,7 +59,7 @@ def deactivate_collection(
 
 
 
-@router.post("/{collection_id}/rotate-key", response_model=CollectionRead)
+@router.post("/{collection_id}/rotate-key", response_model=CollectionRead, **ROTATE_COLLECTION_KEY_DOCS)
 def rotate_api_key(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),

@@ -9,10 +9,16 @@ import json
 from app.services.feedback_service import FeedbackService
 from app.dtos.schemas import FeedbackCreate, FeedbackMetadata, SuccessResponse, ErrorResponse, FeedbackResponse
 from app.database.config import get_db
+from app.docs.swagger.feedback_docs import SUBMIT_FEEDBACK_DOCS, GET_FEEDBACK_DOCS
 
 router = APIRouter(prefix="/api/v1", tags=["Feedback"])
 
-@router.post("/submit-feedback", response_model=SuccessResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/submit-feedback",
+    response_model=SuccessResponse,
+    status_code=status.HTTP_201_CREATED,
+    **SUBMIT_FEEDBACK_DOCS,
+)
 async def submit_feedback(
     screenshot: UploadFile = File(None, description="Screenshot capturado pelo widget"),
     api_token: Optional[str] = Form(None, description="Token de autenticação do merchant"),
@@ -68,7 +74,7 @@ async def submit_feedback(
         }
     )
 
-@router.get("/feedbacks/{feedback_id}", response_model=FeedbackResponse)
+@router.get("/feedbacks/{feedback_id}", response_model=FeedbackResponse, **GET_FEEDBACK_DOCS)
 async def get_feedback(
     feedback_id: int,
     x_api_token: Optional[str] = Header(None),

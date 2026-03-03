@@ -8,12 +8,13 @@ from app.schemas.integration_schema import (
     IntegrationRead,
 )
 from app.services.integration_service import IntegrationService
+from app.docs.swagger.integrations_docs import ENABLE_INTEGRATION_DOCS
 
 router = APIRouter(prefix="/integrations", tags=["Integrations"])
 service = IntegrationService()
 
 
-@router.post("/{collection_id}", response_model=IntegrationRead)
+@router.post("/{collection_id}", response_model=IntegrationRead, **ENABLE_INTEGRATION_DOCS)
 def enable_integration(
     collection_id: UUID,
     data: IntegrationEnable,

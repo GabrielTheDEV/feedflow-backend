@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Request, HTTPException
+from app.docs.swagger.ingest_docs import INGEST_WIDGET_DOCS
 
 router = APIRouter(prefix="/ingest", tags=["widget"])
 
 
-@router.post("/widget")
+@router.post("/widget", **INGEST_WIDGET_DOCS)
 async def ingest_widget(
     payload: WidgetIngestPayload,
     request: Request,

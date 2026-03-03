@@ -9,13 +9,19 @@ import logging
 from app.database.config import get_supabase_client
 from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
 from app.utils.auth_handlers import get_current_user_optional
+from app.docs.swagger.slack_auth_docs import (
+    SLACK_INSTALL_DOCS,
+    SLACK_CALLBACK_DOCS,
+    SLACK_DISCONNECT_DOCS,
+    SLACK_STATUS_DOCS,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth/slack", tags=["Slack OAuth"])
 
 
-@router.get("/install")
+@router.get("/install", **SLACK_INSTALL_DOCS)
 async def slack_install(
     merchant_id: Optional[str] = Query(None, description="UUID do merchant (opcional se autenticado)"),
     current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
@@ -58,7 +64,7 @@ async def slack_install(
         )
 
 
-@router.get("/callback")
+@router.get("/callback", **SLACK_CALLBACK_DOCS)
 async def slack_callback(
     code: str = Query(..., description="Código de autorização retornado pelo Slack"),
     state: str = Query(None, description="State contendo merchant_id"),
@@ -119,7 +125,7 @@ async def slack_callback(
         )
 
 
-@router.delete("/disconnect")
+@router.delete("/disconnect", **SLACK_DISCONNECT_DOCS)
 async def slack_disconnect(merchant_id: str = Query(..., description="UUID do merchant")):
     """
     Desconecta a integração do Slack para um merchant.
@@ -146,7 +152,7 @@ async def slack_disconnect(merchant_id: str = Query(..., description="UUID do me
         )
 
 
-@router.get("/status")
+@router.get("/status", **SLACK_STATUS_DOCS)
 async def slack_status(merchant_id: str = Query(..., description="UUID do merchant")):
     """
     Verifica se o merchant tem integração ativa com Slack.
