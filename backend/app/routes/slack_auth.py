@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any
 import logging
 from app.services.supabase_service import SupabaseManager
 from app.services.slack_oauth_service import SlackOAuthService
-from app.dependencies.auth import get_current_user_optional
+from app.dependencies.auth_handlers import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 

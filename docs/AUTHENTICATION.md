@@ -201,7 +201,7 @@ curl -X POST http://localhost:8000/auth/logout \
 
 ### `get_current_user` (Obrigatório)
 ```python
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth_handlers import get_current_user
 
 @router.get("/protected")
 async def protected_route(current_user: Dict = Depends(get_current_user)):
@@ -211,7 +211,7 @@ async def protected_route(current_user: Dict = Depends(get_current_user)):
 
 ### `get_current_user_optional` (Opcional)
 ```python
-from app.dependencies.auth import get_current_user_optional
+from app.dependencies.auth_handlers import get_current_user_optional
 
 @router.get("/optional-auth")
 async def optional_route(current_user: Optional[Dict] = Depends(get_current_user_optional)):

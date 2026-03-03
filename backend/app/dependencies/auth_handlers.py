@@ -1,5 +1,5 @@
 """
-Dependências de autenticação para proteger rotas
+autenticação para proteger rotas
 """
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
