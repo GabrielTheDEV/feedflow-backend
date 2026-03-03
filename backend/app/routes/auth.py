@@ -7,7 +7,6 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from typing import Dict, Any
 import logging
 from app.services.supabase_service import SupabaseManager
-from app.services.auth_security_service import AuthService
 from app.dependencies.auth_handlers import get_current_user
 from app.dtos.schemas import AuthResponse
 

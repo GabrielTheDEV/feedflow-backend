@@ -4,7 +4,7 @@ Testes para o serviço de notificação Slack atualizado
 import pytest
 from unittest.mock import Mock, patch
 import httpx
-from app.services.slack_service import send_slack_notification, build_slack_blocks
+from app.services.integrations.slack.slack_service import send_slack_notification, build_slack_blocks
 
 class TestBuildSlackBlocks:
     """Testes da função build_slack_blocks"""

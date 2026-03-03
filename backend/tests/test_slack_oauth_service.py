@@ -4,7 +4,7 @@ Testes para o serviço de OAuth do Slack
 import pytest
 from unittest.mock import Mock, patch, AsyncMock
 from httpx import Response
-from app.services.slack_oauth_service import SlackOAuthService
+from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
 
 @pytest.fixture
 def mock_supabase_client():
