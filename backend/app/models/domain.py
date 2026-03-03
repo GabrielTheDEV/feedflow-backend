@@ -1,23 +1,23 @@
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional
+from uuid import UUID, uuid4
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
 
-class Domain(Base):
-    """
-    Entidade Domain - Representa um domínio autorizado para um usuário/merchant
-    Cada domínio tem um token exclusivo e pertence a um usuário
-    """
+class Domain(SQLModel, table=True):
     __tablename__ = "domains"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    domain = Column(String(255), unique=True, nullable=False, index=True)
-    token = Column(String(255), unique=True, nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    is_active = Column(Integer, default=1, nullable=False)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    collection_id: UUID = Field(foreign_key="collections.id", index=True)
 
-    def __repr__(self) -> str:
-        return f"<Domain(id={self.id}, domain='{self.domain}')>"
+    domain: str = Field(index=True)
+
+    active: bool = Field(default=True)
+    verified: bool = Field(default=False)
+    verified_at: Optional[datetime] = None
+
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # relationships
+    collection: Optional["Collection"] = Relationship(back_populates="domains")

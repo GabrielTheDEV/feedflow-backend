@@ -10,8 +10,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL não configurada.")
 
-
-engine = create_engine(DATABASE_URL, echo=False) 
+try:
+    engine = create_engine(DATABASE_URL, echo=False) 
+except Exception as e:
+    raise ValueError(f"Erro ao criar engine do banco de dados: {e}")
 
 # open and close session for each request
 def get_db():   
