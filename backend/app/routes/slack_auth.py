@@ -6,9 +6,9 @@ from fastapi import APIRouter, HTTPException, Query, status, Depends
 from fastapi.responses import RedirectResponse
 from typing import Optional, Dict, Any
 import logging
-from app.services.superbase.supabase_service import SupabaseManager
+from app.database.config import get_supabase_client
 from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
-from app.dependencies.auth_handlers import get_current_user_optional
+from app.utils.auth_handlers import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ async def slack_install(
                 detail="merchant_id é obrigatório quando não autenticado"
             )
 
-        supabase = SupabaseManager()
-        oauth_service = SlackOAuthService(supabase.client)
+        supabase = get_supabase_client()
+        oauth_service = SlackOAuthService(supabase)
 
         auth_url = oauth_service.get_authorization_url(state=user_id)
         logger.info("Redirecting user %s to Slack OAuth", user_id)
@@ -87,8 +87,8 @@ async def slack_callback(
     merchant_id = state
 
     try:
-        supabase = SupabaseManager()
-        oauth_service = SlackOAuthService(supabase.client)
+        supabase = get_supabase_client()
+        oauth_service = SlackOAuthService(supabase)
 
         oauth_data = await oauth_service.exchange_code_for_token(code)
         integration = oauth_service.save_integration(merchant_id, oauth_data)
@@ -125,8 +125,8 @@ async def slack_disconnect(merchant_id: str = Query(..., description="UUID do me
     Desconecta a integração do Slack para um merchant.
     """
     try:
-        supabase = SupabaseManager()
-        oauth_service = SlackOAuthService(supabase.client)
+        supabase = get_supabase_client()
+        oauth_service = SlackOAuthService(supabase)
 
         success = oauth_service.delete_integration(merchant_id)
 
@@ -152,8 +152,8 @@ async def slack_status(merchant_id: str = Query(..., description="UUID do mercha
     Verifica se o merchant tem integração ativa com Slack.
     """
     try:
-        supabase = SupabaseManager()
-        oauth_service = SlackOAuthService(supabase.client)
+        supabase = get_supabase_client()
+        oauth_service = SlackOAuthService(supabase)
 
         integration = oauth_service.get_integration(merchant_id)
 

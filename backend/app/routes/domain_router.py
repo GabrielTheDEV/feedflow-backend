@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
 
-from app.database import get_db
+from app.database.config import get_db
 from app.repositories.domain_repository import DomainRepository
 from app.services.collections.domain_service import DomainService
 from app.dtos.schemas import DomainCreate, DomainRead

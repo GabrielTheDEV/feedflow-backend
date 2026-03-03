@@ -61,24 +61,24 @@ class CollectionService:
 
         return self.repo.save(collection)
 
-    def _assert_collection_limit(self, user_id: UUID):
-        count = len(self.repo.list_by_user(user_id))
-        if count >= plan_limit:
-            raise ValueError("Collection limit reached")
+    # def _assert_collection_limit(self, user_id: UUID):
+    #     count = len(self.repo.list_by_user(user_id))
+    #     if count >= plan_limit:
+    #         raise ValueError("Collection limit reached")
 
-        # =========================
+# =========================
         # rotate api key
         # =========================
-        def rotate_api_key(self, collection_id: UUID) -> Collection:
-            collection = self.repo.get_by_id(collection_id)
+    def rotate_api_key(self, collection_id: UUID) -> Collection:
+        collection = self.repo.get_by_id(collection_id)
 
-            if not collection:
-                raise ValueError("Collection not found")
+        if not collection:
+            raise ValueError("Collection not found")
 
-            collection.api_key = self._generate_api_key()
-            collection.updated_at = datetime.utcnow()
+        collection.api_key = self._generate_api_key()
+        collection.updated_at = datetime.utcnow()
 
-            return self.repo.save(collection)
+        return self.repo.save(collection)
 
     # =========================
     # list user collections

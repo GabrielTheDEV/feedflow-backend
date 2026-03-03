@@ -6,8 +6,8 @@ Senhas são criptografadas automaticamente (bcrypt) pelo Supabase
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import Dict, Any
 import logging
-from app.services.superbase.supabase_service import SupabaseManager
-from app.dependencies.auth_handlers import get_current_user
+from app.database.config import get_supabase_client
+from app.utils.auth_handlers import get_current_user
 from app.dtos.schemas import AuthResponse
 
 logger = logging.getLogger(__name__)
@@ -21,8 +21,8 @@ async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
     Requer autenticação via Bearer token
     """
     try:
-        supabase = SupabaseManager()
-        supabase.client.auth.sign_out()
+        supabase = get_supabase_client()
+        supabase.auth.sign_out()
         logger.info("User logged out: %s", current_user["id"])
         return {"message": "Logout realizado com sucesso"}
     except Exception as exc:

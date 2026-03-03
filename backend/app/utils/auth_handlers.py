@@ -5,8 +5,9 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, Any, Optional
 import logging
+from uuid import UUID
 
-from app.services.superbase.supabase_service import SupabaseManager
+from app.database.config import get_supabase_client
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +34,10 @@ async def get_current_user(
     token = credentials.credentials
     
     try:
-        supabase = SupabaseManager()
+        supabase = get_supabase_client()
         
         # Validar token e obter usuário
-        response = supabase.client.auth.get_user(token)
+        response = supabase.auth.get_user(token)
         
         if not response or not response.user:
             raise HTTPException(
@@ -85,8 +86,8 @@ async def get_current_user_optional(
     token = credentials.credentials
     
     try:
-        supabase = SupabaseManager()
-        response = supabase.client.auth.get_user(token)
+        supabase = get_supabase_client()
+        response = supabase.auth.get_user(token)
         
         if not response or not response.user:
             return None
@@ -104,3 +105,9 @@ async def get_current_user_optional(
     except Exception as exc:
         logger.warning("Optional auth failed: %s", str(exc))
         return None
+
+
+def get_current_user_id(
+    current_user: Dict[str, Any] = Depends(get_current_user),
+) -> UUID:
+    return UUID(str(current_user["id"]))

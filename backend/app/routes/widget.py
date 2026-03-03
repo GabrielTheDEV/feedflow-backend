@@ -5,8 +5,7 @@ Rotas de geração de widget
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session
 from app.dtos.schemas import WidgetGenerateRequest, WidgetConfig
-from app.database import get_db
-from app.services.widget_service import WidgetService
+from app.database.config import get_db
 
 
 router = APIRouter(prefix="/api/v1", tags=["Widget"])

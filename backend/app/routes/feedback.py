@@ -8,7 +8,7 @@ from typing import Optional
 import json
 from app.services.feedback_service import FeedbackService
 from app.dtos.schemas import FeedbackCreate, FeedbackMetadata, SuccessResponse, ErrorResponse, FeedbackResponse
-from app.database import get_db
+from app.database.config import get_db
 
 router = APIRouter(prefix="/api/v1", tags=["Feedback"])
 
