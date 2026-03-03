@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Query, status, Depends
 from fastapi.responses import RedirectResponse
 from typing import Optional, Dict, Any
 import logging
-from app.services.supabase_service import SupabaseManager
+from app.services.superbase.supabase_service import SupabaseManager
 from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
 from app.dependencies.auth_handlers import get_current_user_optional
 

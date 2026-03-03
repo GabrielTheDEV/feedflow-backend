@@ -4,7 +4,7 @@ Testes de integração com Supabase (PostgreSQL)
 import os
 import uuid
 import pytest
-from app.services.supabase_service import SupabaseManager
+from app.services.superbase.supabase_service import SupabaseManager
 
 def _has_env() -> bool:
     return bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_KEY"))

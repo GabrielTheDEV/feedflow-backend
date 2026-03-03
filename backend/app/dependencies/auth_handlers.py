@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, Any, Optional
 import logging
 
-from app.services.supabase_service import SupabaseManager
+from app.services.superbase.supabase_service import SupabaseManager
 
 logger = logging.getLogger(__name__)
 

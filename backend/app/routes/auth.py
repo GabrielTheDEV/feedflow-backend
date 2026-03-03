@@ -6,7 +6,7 @@ Senhas são criptografadas automaticamente (bcrypt) pelo Supabase
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import Dict, Any
 import logging
-from app.services.supabase_service import SupabaseManager
+from app.services.superbase.supabase_service import SupabaseManager
 from app.dependencies.auth_handlers import get_current_user
 from app.dtos.schemas import AuthResponse
 
