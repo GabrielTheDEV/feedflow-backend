@@ -1,55 +1,59 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from uuid import UUID
 
-from app.core.database import get_db
-from app.dtos.schemas.py import ( CollectionCreate, CollectionRead)
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.schemas.collection import CollectionCreate, CollectionRead
 from app.services.collection_service import CollectionService
-from app.utils.auth import get_current_user_id
+from app.dependencies import get_collection_service
+
+router = APIRouter(prefix="/collections", tags=["collections"])
 
 
-router = APIRouter(prefix="/collections", tags=["Collections"])
-service = CollectionService()
-# -------------------------
-# CREATE COLLECTION
-# -------------------------
-@router.post("", response_model=CollectionRead)
+
+
+@router.post("/", response_model=CollectionRead, status_code=201)
 def create_collection(
-    data: CollectionCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_id),
+    payload: CollectionCreate,
+    service: CollectionService = Depends(get_collection_service),
+    # TODO: pegar do Supabase auth
+    user_id: UUID = Depends(...),
 ):
-    user_id = current_user["id"]    
-
-
     try:
-        return service.create_collection(
-            db,
-            user_id=fake_user_id,
-            name=data.name,
-        )
+        return service.create_collection(user_id=user_id, name=payload.name)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# -------------------------
-# LIST USER COLLECTIONS
-# -------------------------
-@router.get("", response_model=list[CollectionRead])
-def list_collections(db: Session = Depends(get_db)):
-    fake_user_id = UUID("00000000-0000-0000-0000-000000000001")
-    return service.get_user_collections(db, fake_user_id)
+
+@router.get("/", response_model=list[CollectionRead])
+def list_collections(
+    service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(...),
+):
+    return service.list_user_collections(user_id)
 
 
-# -------------------------
-# ROTATE API KEY
-# -------------------------
-@router.post("/{collection_id}/rotate-key")
-def rotate_api_key(
+
+
+@router.patch("/{collection_id}/deactivate", response_model=CollectionRead)
+def deactivate_collection(
     collection_id: UUID,
-    db: Session = Depends(get_db),
+    service: CollectionService = Depends(get_collection_service),
 ):
     try:
-        return service.regenerate_api_key(db, collection_id)
+        return service.deactivate_collection(collection_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+
+
+@router.post("/{collection_id}/rotate-key", response_model=CollectionRead)
+def rotate_api_key(
+    collection_id: UUID,
+    service: CollectionService = Depends(get_collection_service),
+):
+    try:
+        return service.rotate_api_key(collection_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

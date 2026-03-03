@@ -11,12 +11,12 @@ from app.models.enums.status import Status
 class Collection(SQLModel, table=True):
     __tablename__ = "collections"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="users.id", index=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True , index=True)
+    user_id: UUID = Field(foreign_key="users.id", index=True, nullable=False)
 
-    name: str
+    name: str = Field(max_length=120, nullable=False)
 
-    api_key: Optional[str] = Field(default=None, index=True)
+    api_key: str = Field(default=None, index=True, unique=True)
     api_key_created_at: Optional[datetime] = None
     api_key_revoked_at: Optional[datetime] = None
 

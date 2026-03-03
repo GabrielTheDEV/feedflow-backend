@@ -23,7 +23,7 @@ class CollectionCreate(SQLModel):
 class CollectionRead(SQLModel):
     id: UUID
     name: str
-    api_key: str | None
+    api_key: str 
     plan: str
     is_active: bool
     created_at: datetime

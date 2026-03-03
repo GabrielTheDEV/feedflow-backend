@@ -1,23 +1,40 @@
 from typing import Optional, List
+from uuid import UUID
+
 from sqlmodel import Session, select
+
 from app.models.collection import Collection
-from .base_repository import BaseRepository
 
 
-class CollectionRepository(BaseRepository[Collection]):
-    def __init__(self):
-        super().__init__(Collection)
+class CollectionRepository:
+    def __init__(self, session: Session):
+        self.session = session
 
-    def get_by_api_key(
-        self, session: Session, api_key: str
-    ) -> Optional[Collection]:
-        return session.exec(
-            select(Collection).where(Collection.api_key == api_key)
-        ).first()
+    # 🔹 create
+    def create(self, collection: Collection) -> Collection:
+        self.session.add(collection)
+        self.session.commit()
+        self.session.refresh(collection)
+        return collection
 
-    def get_by_user(
-        self, session: Session, user_id
-    ) -> List[Collection]:
-        return session.exec(
-            select(Collection).where(Collection.user_id == user_id)
-        ).all()
+    # 🔹 get by id
+    def get_by_id(self, collection_id: UUID) -> Optional[Collection]:
+        statement = select(Collection).where(Collection.id == collection_id)
+        return self.session.exec(statement).first()
+
+    # 🔹 get by api key (CRÍTICO para widget)
+    def get_by_api_key(self, api_key: str) -> Optional[Collection]:
+        statement = select(Collection).where(Collection.api_key == api_key)
+        return self.session.exec(statement).first()
+
+    # 🔹 list by user
+    def list_by_user(self, user_id: UUID) -> List[Collection]:
+        statement = select(Collection).where(Collection.user_id == user_id)
+        return list(self.session.exec(statement))
+
+    # 🔹 save/update
+    def save(self, collection: Collection) -> Collection:
+        self.session.add(collection)
+        self.session.commit()
+        self.session.refresh(collection)
+        return collection
