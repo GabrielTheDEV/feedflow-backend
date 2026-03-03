@@ -8,6 +8,7 @@ python-multipart==0.0.6
 sqlalchemy==2.0.25
 psycopg2-binary==2.9.9
 alembic==1.13.1
+sqlmodel==0.0.16
 
 # Validação e serialização
 pydantic==2.5.3
