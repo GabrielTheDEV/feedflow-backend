@@ -1,5 +1,5 @@
 """
-Schemas (DTOs) do FeedFlow usando Pydantic
+DTOs (Schemas) do FeedFlow usando Pydantic
 Define contratos de entrada e saída da API
 """
 from datetime import datetime
@@ -15,29 +15,6 @@ class WidgetGenerateRequest(BaseModel):
     domain: str
     widgetConfig: WidgetConfig
 
-
-
-class MerchantBase(BaseModel):
-    """Schema base para Merchant"""
-    shop_url: str = Field(..., min_length=1, max_length=255, description="URL da loja Shopify")
-
-
-class MerchantCreate(MerchantBase):
-    """Schema para criação de Merchant"""
-    pass
-
-
-class MerchantResponse(MerchantBase):
-    """Schema de resposta para Merchant"""
-    id: int
-    api_token: str
-    is_active: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True  # Suporta ORM models
-
-
 class FeedbackMetadata(BaseModel):
     """Schema para metadados do feedback"""
     page_url: Optional[str] = None
@@ -50,13 +27,11 @@ class FeedbackMetadata(BaseModel):
     browser_language: Optional[str] = None
     referrer: Optional[str] = None
 
-
 class FeedbackCreate(BaseModel):
     """Schema para criação de Feedback"""
     customer_email: EmailStr
     customer_message: str = Field(..., max_length=550, min_length=1)
     metadata: Optional[FeedbackMetadata] = None
-
 
 class FeedbackResponse(BaseModel):
     """Schema de resposta para Feedback"""
@@ -72,19 +47,16 @@ class FeedbackResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 class ErrorResponse(BaseModel):
     """Schema padrão para respostas de erro"""
     error: str
     detail: Optional[str] = None
     status_code: int
 
-
 class SuccessResponse(BaseModel):
     """Schema padrão para respostas de sucesso"""
     message: str
     data: Optional[Dict[str, Any]] = None
-
 
 class DomainBase(BaseModel):
     domain: str = Field(..., description="Domínio autorizado")

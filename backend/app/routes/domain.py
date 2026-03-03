@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.models.domain import Domain
-from app.schemas.schemas import DomainCreate, DomainResponse
+from app.dtos.schemas import DomainCreate, DomainResponse
 from app.database import get_db
 from uuid import uuid4
 

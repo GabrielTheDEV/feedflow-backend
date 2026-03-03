@@ -11,7 +11,7 @@ import uuid
 import logging
 
 from app.models.models import Feedback, Merchant
-from app.schemas.schemas import FeedbackCreate, FeedbackResponse
+from app.dtos.schemas import FeedbackCreate, FeedbackResponse
 
 logger = logging.getLogger(__name__)
 
