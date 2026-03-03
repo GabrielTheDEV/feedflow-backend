@@ -1,43 +1,76 @@
-import pytest
+from datetime import datetime
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
+
 from main import app
+from app.routes.domain_router import get_service
 
 client = TestClient(app)
 
-@pytest.fixture(scope="module")
-def created_domain():
-    data = {"domain": "example.com"}
-    response = client.post("/domains/", json=data)
-    assert response.status_code == 201
-    return response.json()
 
-def test_list_domains_empty():
-    response = client.get("/domains/")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
+class FakeDomainService:
+    def __init__(self):
+        self.domain_id = uuid4()
 
-def test_create_domain(created_domain):
-    assert created_domain["domain"] == "example.com"
-    assert "token" in created_domain
+    def add_domain(self, collection_id, domain):
+        return {
+            "id": self.domain_id,
+            "domain": domain,
+            "verified": False,
+            "active": True,
+            "created_at": datetime.utcnow(),
+        }
 
-def test_list_domains_after_create(created_domain):
-    response = client.get("/domains/")
-    assert response.status_code == 200
-    domains = response.json()
-    assert any(d["domain"] == "example.com" for d in domains)
+    def list_domains(self, collection_id):
+        return [
+            {
+                "id": self.domain_id,
+                "domain": "example.com",
+                "verified": True,
+                "active": True,
+                "created_at": datetime.utcnow(),
+            }
+        ]
 
-def test_regenerate_token(created_domain):
-    domain_id = created_domain["id"]
-    response = client.post(f"/domains/{domain_id}/regenerate-token")
-    assert response.status_code == 200
-    assert "token" in response.json()
+    def verify_domain(self, domain_id):
+        return {
+            "id": domain_id,
+            "domain": "example.com",
+            "verified": True,
+            "active": True,
+            "created_at": datetime.utcnow(),
+        }
 
-def test_delete_domain(created_domain):
-    domain_id = created_domain["id"]
-    response = client.delete(f"/domains/{domain_id}")
-    assert response.status_code == 204
+    def deactivate_domain(self, domain_id):
+        return {
+            "id": domain_id,
+            "domain": "example.com",
+            "verified": True,
+            "active": False,
+            "created_at": datetime.utcnow(),
+        }
 
-def test_list_domains_empty_again():
-    response = client.get("/domains/")
-    assert response.status_code == 200
-    assert all(d["domain"] != "example.com" for d in response.json())
+
+def test_domain_endpoints_flow():
+    app.dependency_overrides[get_service] = lambda: FakeDomainService()
+    collection_id = str(uuid4())
+    domain_id = str(uuid4())
+
+    create_response = client.post(f"/domains/{collection_id}", json={"domain": "example.com"})
+    assert create_response.status_code == 200
+    assert create_response.json()["domain"] == "example.com"
+
+    list_response = client.get(f"/domains/{collection_id}")
+    assert list_response.status_code == 200
+    assert isinstance(list_response.json(), list)
+
+    verify_response = client.patch(f"/domains/{domain_id}/verify")
+    assert verify_response.status_code == 200
+    assert verify_response.json()["verified"] is True
+
+    deactivate_response = client.patch(f"/domains/{domain_id}/deactivate")
+    assert deactivate_response.status_code == 200
+    assert deactivate_response.json()["active"] is False
+
+    app.dependency_overrides.clear()

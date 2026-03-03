@@ -12,7 +12,7 @@ def test_collection_model_fields():
         api_key="chave123",
         api_key_created_at=datetime.utcnow(),
         plan=None,
-        is_active=True,
+        active=True,
         status=None,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
@@ -20,6 +20,6 @@ def test_collection_model_fields():
     assert collection.user_id == user_id
     assert collection.name == "Minha Collection"
     assert collection.api_key == "chave123"
-    assert collection.is_active is True
+    assert collection.active is True
     assert hasattr(collection, "created_at")
     assert hasattr(collection, "updated_at")

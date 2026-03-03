@@ -2,9 +2,12 @@
 Script auxiliar para testar o endpoint de submit-feedback
 Execute: python test_api.py
 """
+import pytest
 import requests
 import json
 from pathlib import Path
+
+pytestmark = pytest.mark.skip(reason="Teste manual, fora da suíte automatizada")
 
 
 def create_test_image():

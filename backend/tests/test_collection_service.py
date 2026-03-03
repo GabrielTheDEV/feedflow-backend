@@ -58,7 +58,7 @@ def test_deactivate_collection(service):
     user_id = uuid4()
     collection = service.create_collection(user_id, "Teste")
     result = service.deactivate_collection(collection.id)
-    assert result.is_active is False or getattr(result, "active", False) is False
+    assert getattr(result, "active", False) is False
 
 def test_list_user_collections(service):
     user_id = uuid4()

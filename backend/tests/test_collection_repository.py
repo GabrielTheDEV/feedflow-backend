@@ -25,22 +25,36 @@ class FakeSession:
     def exec(self, statement):
         # Simula select por id/api_key/user_id
         class Result:
-            def __init__(self, obj):
-                self._obj = obj
+            def __init__(self, rows):
+                self._rows = rows
             def first(self):
-                return self._obj
+                return self._rows[0] if self._rows else None
             def __iter__(self):
-                return iter([self._obj] if self._obj else [])
+                return iter(self._rows)
+            def all(self):
+                return self._rows
+
         if hasattr(statement, 'whereclause'):
+            matches = []
             for obj in self._collections.values():
                 if hasattr(statement.whereclause, 'right'):
                     if obj.id == statement.whereclause.right.value:
-                        return Result(obj)
+                        matches.append(obj)
                     if obj.api_key == statement.whereclause.right.value:
-                        return Result(obj)
+                        matches.append(obj)
                     if obj.user_id == statement.whereclause.right.value:
-                        return Result(obj)
-        return Result(None)
+                        matches.append(obj)
+            # evitar duplicados mantendo ordem
+            dedup = []
+            seen_ids = set()
+            for item in matches:
+                item_id = getattr(item, "id", id(item))
+                if item_id in seen_ids:
+                    continue
+                seen_ids.add(item_id)
+                dedup.append(item)
+            return Result(dedup)
+        return Result([])
 
 @pytest.fixture
 def fake_session():
