@@ -3,7 +3,11 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
+from app.models.enums.plans import Plan
+from app.models.enums.status import Status
 
+
+#tabela de collections gerencia e contem os dominios
 class Collection(SQLModel, table=True):
     __tablename__ = "collections"
 
@@ -16,9 +20,9 @@ class Collection(SQLModel, table=True):
     api_key_created_at: Optional[datetime] = None
     api_key_revoked_at: Optional[datetime] = None
 
-    plan: str = Field(default="free")
+    plan: Plan = Field(default=Plan.free)
     is_active: bool = Field(default=True)
-    status: str = Field(default="working")
+    status: Status = Field(default=Status.working)
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

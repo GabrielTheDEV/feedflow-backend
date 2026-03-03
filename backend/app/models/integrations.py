@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 
+from app.models.enums.integrations import IntegrationService
 
 class Integration(SQLModel, table=True):
     __tablename__ = "integrations"
@@ -10,7 +11,7 @@ class Integration(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     collection_id: UUID = Field(foreign_key="collections.id", index=True)
 
-    service: str = Field(index=True)  # slack, jira, trello
+    service: IntegrationService = Field(index=True)  # slack, jira, trello
     is_active: bool = Field(default=True)
 
     config_json: Optional[dict] = Field(default=None)
