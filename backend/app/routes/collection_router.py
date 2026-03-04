@@ -14,7 +14,11 @@ from app.docs.swagger.collections_docs import (
     ROTATE_COLLECTION_KEY_DOCS,
 )
 
-router = APIRouter(prefix="/collections", tags=["collections"])
+router = APIRouter(
+    prefix="/collections",
+    tags=["collections"],
+    dependencies=[Depends(get_current_user_id)],
+)
 
 
 def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
@@ -26,7 +30,6 @@ def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
 def create_collection(
     payload: CollectionCreate,
     service: CollectionService = Depends(get_collection_service),
-    # TODO: pegar do Supabase auth
     user_id: UUID = Depends(get_current_user_id),
 ):
     try:
@@ -50,9 +53,12 @@ def list_collections(
 def deactivate_collection(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        return service.deactivate_collection(collection_id)
+        return service.deactivate_collection(collection_id, user_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -63,8 +69,11 @@ def deactivate_collection(
 def rotate_api_key(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        return service.rotate_api_key(collection_id)
+        return service.rotate_api_key(collection_id, user_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

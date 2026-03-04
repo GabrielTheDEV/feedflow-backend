@@ -51,14 +51,30 @@ def test_rotate_api_key(service):
     user_id = uuid4()
     collection = service.create_collection(user_id, "Teste")
     old_key = collection.api_key
-    new_collection = service.rotate_api_key(collection.id)
+    new_collection = service.rotate_api_key(collection.id, user_id)
     assert new_collection.api_key != old_key
 
 def test_deactivate_collection(service):
     user_id = uuid4()
     collection = service.create_collection(user_id, "Teste")
-    result = service.deactivate_collection(collection.id)
+    result = service.deactivate_collection(collection.id, user_id)
     assert getattr(result, "active", False) is False
+
+def test_rotate_api_key_unauthorized_user(service):
+    owner_id = uuid4()
+    another_user_id = uuid4()
+    collection = service.create_collection(owner_id, "Teste")
+
+    with pytest.raises(PermissionError):
+        service.rotate_api_key(collection.id, another_user_id)
+
+def test_deactivate_collection_unauthorized_user(service):
+    owner_id = uuid4()
+    another_user_id = uuid4()
+    collection = service.create_collection(owner_id, "Teste")
+
+    with pytest.raises(PermissionError):
+        service.deactivate_collection(collection.id, another_user_id)
 
 def test_list_user_collections(service):
     user_id = uuid4()

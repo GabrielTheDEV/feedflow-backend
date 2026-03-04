@@ -50,11 +50,14 @@ class CollectionService:
     # =========================
     # deactivate
     # =========================
-    def deactivate_collection(self, collection_id: UUID) -> Collection:
+    def deactivate_collection(self, collection_id: UUID, user_id: UUID) -> Collection:
         collection = self.repo.get_by_id(collection_id)
 
         if not collection:
             raise ValueError("Collection not found")
+
+        if collection.user_id != user_id:
+            raise PermissionError("You do not have access to this collection")
 
         collection.active = False
         collection.updated_at = datetime.utcnow()
@@ -69,11 +72,14 @@ class CollectionService:
 # =========================
         # rotate api key
         # =========================
-    def rotate_api_key(self, collection_id: UUID) -> Collection:
+    def rotate_api_key(self, collection_id: UUID, user_id: UUID) -> Collection:
         collection = self.repo.get_by_id(collection_id)
 
         if not collection:
             raise ValueError("Collection not found")
+
+        if collection.user_id != user_id:
+            raise PermissionError("You do not have access to this collection")
 
         collection.api_key = self._generate_api_key()
         collection.updated_at = datetime.utcnow()

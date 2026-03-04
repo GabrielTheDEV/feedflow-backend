@@ -14,11 +14,11 @@ class Integration(SQLModel, table=True):
     service: IntegrationService = Field(index=True)  # slack, jira, trello
     active: bool = Field(default=True)
 
-    config_json: Optional[dict] = Field(default=None)
+    config_json: Optional[dict] = Field(default=None, sa_column=Column(JSON, nullable=True))
     external_id: Optional[str] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field( default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
 
     # relationships
     collection: Optional["Collection"] = Relationship(back_populates="integrations")
