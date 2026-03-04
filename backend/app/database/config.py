@@ -1,4 +1,8 @@
 from sqlmodel  import SQLModel, create_engine, Session
+# Importação explícita dos models para registrar as tabelas
+from app.models.collections import Collection
+from app.models.domain import Domain
+from app.models.user import User
 import os
 from dotenv import load_dotenv
 from typing import Optional

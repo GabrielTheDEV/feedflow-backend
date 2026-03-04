@@ -32,6 +32,7 @@ from app.routes.slack_auth import router as slack_auth_router
 
 from app.routes.collection_router import router as collection_router
 from app.routes.domain_router import router as domain_router
+from app.database.config import init_db
 
 
 app.include_router(feedback_router)
@@ -45,3 +46,8 @@ app.include_router(domain_router)
 
 # Logging básico
 logging.basicConfig(level=logging.INFO)
+
+
+
+
+
