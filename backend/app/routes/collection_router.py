@@ -6,7 +6,7 @@ from app.database.config import get_db
 from app.dtos.schemas import CollectionCreate, CollectionRead
 from app.repositories.collection_repository import CollectionRepository
 from app.services.collections.collections_service import CollectionService
-from app.utils.auth_handlers import get_current_user_id
+from app.database.auth_handlers import get_current_user_id
 from app.docs.swagger.collections_docs import (
     CREATE_COLLECTION_DOCS,
     LIST_COLLECTIONS_DOCS,
@@ -22,6 +22,7 @@ router = APIRouter(
 def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
     repo = CollectionRepository(db)
     return CollectionService(repo)
+
 
 
 @router.post("/", response_model=CollectionRead, status_code=201, **CREATE_COLLECTION_DOCS)

@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any
 import logging
 from app.database.config import get_supabase_client
 from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
-from app.utils.auth_handlers import get_current_user_optional
+from app.database.auth_handlers import get_current_user_optional
 from app.docs.swagger.slack_auth_docs import (
     SLACK_INSTALL_DOCS,
     SLACK_CALLBACK_DOCS,

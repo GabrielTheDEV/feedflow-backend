@@ -1,15 +1,16 @@
+from fastapi import APIRouter, HTTPException, status, Depends
+from typing import Dict, Any
+import logging
+from app.database.config import get_supabase_client
+from app.database.auth_handlers import get_current_user
+from app.dtos.schemas import AuthResponse
+from app.docs.swagger.auth_docs import LOGOUT_DOCS, ME_DOCS
+
 """
 Rotas de autenticação com Supabase Auth
 Senhas são criptografadas automaticamente (bcrypt) pelo Supabase
 """
 
-from fastapi import APIRouter, HTTPException, status, Depends
-from typing import Dict, Any
-import logging
-from app.database.config import get_supabase_client
-from app.utils.auth_handlers import get_current_user
-from app.dtos.schemas import AuthResponse
-from app.docs.swagger.auth_docs import LOGOUT_DOCS, ME_DOCS
 
 logger = logging.getLogger(__name__)
 

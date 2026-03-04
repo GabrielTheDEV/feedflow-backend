@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 
 from main import app
-from app.utils.auth_handlers import get_current_user
+from app.database.auth_handlers import get_current_user
 
 client = TestClient(app)
 

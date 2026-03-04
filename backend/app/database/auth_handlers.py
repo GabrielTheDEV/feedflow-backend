@@ -1,11 +1,13 @@
-"""
-autenticação para proteger rotas
-"""
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, Any, Optional
 import logging
 from uuid import UUID
+
+"""
+Handlers de autenticação e autorização usando JWT do Supabase.
+Fornece dependências para validar tokens e extrair dados do usuário autenticado.
+"""
 
 from app.database.config import get_supabase_client
 
@@ -22,14 +24,11 @@ async def get_current_user(
     """
     Valida JWT token do Supabase e retorna dados do usuário autenticado.
     
-    Args:
-        credentials: Token Bearer do header Authorization
+    Args: -> credentials: Token Bearer do header Authorization
         
-    Returns:
-        Dados do usuário autenticado (id, email, etc)
+    Returns -> Dados do usuário autenticado (id, email, etc)
         
-    Raises:
-        HTTPException 401: Token inválido ou expirado
+    Raises: -> HTTPException 401: Token inválido ou expirado
     """
     token = credentials.credentials
     

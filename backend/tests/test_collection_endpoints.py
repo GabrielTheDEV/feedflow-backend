@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from app.routes.collection_router import get_collection_service
-from app.utils.auth_handlers import get_current_user_id
+from app.database.auth_handlers import get_current_user_id
 
 
 client = TestClient(app)

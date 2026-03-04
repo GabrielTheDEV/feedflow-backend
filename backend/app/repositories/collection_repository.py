@@ -38,3 +38,7 @@ class CollectionRepository:
         self.session.commit()
         self.session.refresh(collection)
         return collection
+    
+    def delete(self, collection: Collection) -> None:
+        self.session.delete(collection)
+        self.session.commit()
