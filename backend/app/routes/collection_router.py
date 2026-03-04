@@ -16,9 +16,7 @@ from app.docs.swagger.collections_docs import (
 
 router = APIRouter(
     prefix="/collections",
-    tags=["collections"],
-    dependencies=[Depends(get_current_user_id)],
-)
+    tags=["collections"])
 
 
 def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
