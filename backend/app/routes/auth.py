@@ -36,10 +36,13 @@ async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
 
 @router.get("/me", **ME_DOCS)
 async def get_me(current_user: Dict[str, Any] = Depends(get_current_user)):
-    """
-    Obter dados do usuário autenticado
-    Requer autenticação via Bearer token
-    """
-    return {
-        "user": current_user
-    }
+    try:
+        return {
+            "user": current_user
+        }
+    except Exception as exc:
+        logger.error("Get me error: %s", str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro ao obter informações do usuário"
+        )

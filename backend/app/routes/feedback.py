@@ -6,7 +6,7 @@ from fastapi import APIRouter, File, UploadFile, Form, Header, Depends, HTTPExce
 from sqlalchemy.orm import Session
 from typing import Optional
 import json
-from app.services.feedback_service import FeedbackService
+from app.services.feedback.feedback_service import FeedbackService
 from app.dtos.schemas import FeedbackCreate, FeedbackMetadata, SuccessResponse, ErrorResponse, FeedbackResponse
 from app.database.config import get_db
 from app.docs.swagger.feedback_docs import SUBMIT_FEEDBACK_DOCS, GET_FEEDBACK_DOCS

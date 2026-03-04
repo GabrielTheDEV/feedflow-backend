@@ -38,10 +38,10 @@ def get_supabase_client() -> Client:
         return _supabase_client
 
     supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
     if not supabase_url or not supabase_key:
-        raise ValueError("SUPABASE_URL e SUPABASE_KEY são obrigatórios")
+        raise ValueError("SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios")
 
     _supabase_client = create_client(supabase_url, supabase_key)
     return _supabase_client

@@ -18,10 +18,7 @@ security = HTTPBearer()
 optional_security = HTTPBearer(auto_error=False)
 
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> Dict[str, Any]:
-    """
+ """
     Valida JWT token do Supabase e retorna dados do usuário autenticado.
     
     Args: -> credentials: Token Bearer do header Authorization
@@ -30,6 +27,10 @@ async def get_current_user(
         
     Raises: -> HTTPException 401: Token inválido ou expirado
     """
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> Dict[str, Any]:
+   
     token = credentials.credentials
     
     try:
@@ -38,11 +39,11 @@ async def get_current_user(
         # Validar token e obter usuário
         response = supabase.auth.get_user(token)
         
-        if not response or not response.user:
+        if not response or response.user is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token inválido ou expirado",
-                headers={"WWW-Authenticate": "Bearer"},
+                # headers={"WWW-Authenticate": "Bearer"},
             )
         
         user = response.user
