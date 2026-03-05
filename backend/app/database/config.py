@@ -1,5 +1,4 @@
 from sqlmodel  import SQLModel, create_engine, Session
-# Importação explícita dos models para registrar as tabelas
 from app.models.collections import Collection
 from app.models.domain import Domain
 from app.models.user import User
@@ -21,7 +20,7 @@ if not DATABASE_URL:
 if DATABASE_URL.startswith("postgres") and "sslmode=" not in DATABASE_URL:
     separator = "&" if "?" in DATABASE_URL else "?"
     DATABASE_URL = f"{DATABASE_URL}{separator}sslmode=require"
-
+    
 try:
     engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 except Exception as e:
@@ -47,7 +46,7 @@ def get_supabase_client() -> Client:
 
             if not supabase_url or not supabase_key:
                 raise ValueError(
-                    "SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios"
+                    "SUPABASE_URL e SUPABASE_KEY são obrigatórios"
                 )
 
             _supabase_client = create_client(supabase_url, supabase_key)
