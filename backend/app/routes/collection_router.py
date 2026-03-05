@@ -6,7 +6,7 @@ from app.database.config import get_db
 from app.dtos.schemas import CollectionCreate, CollectionRead
 from app.repositories.collection_repository import CollectionRepository
 from app.services.collections.collections_service import CollectionService
-from app.database.auth_handlers import get_current_user_id
+from app.database.auth_handlers import get_current_user
 from app.docs.swagger.collections_docs import (
     CREATE_COLLECTION_DOCS,
     LIST_COLLECTIONS_DOCS,
@@ -29,7 +29,7 @@ def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
 def create_collection(
     payload: CollectionCreate,
     service: CollectionService = Depends(get_collection_service),
-    user_id: UUID = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user),
 ):
     try:
         return service.create_collection(user_id=user_id, name=payload.name)
@@ -41,7 +41,7 @@ def create_collection(
 @router.get("/", response_model=list[CollectionRead], **LIST_COLLECTIONS_DOCS)
 def list_collections(
     service: CollectionService = Depends(get_collection_service),
-    user_id: UUID = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user),
 ):
     return service.list_user_collections(user_id)
 
@@ -52,7 +52,7 @@ def list_collections(
 def deactivate_collection(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),
-    user_id: UUID = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user),
 ):
     try:
         return service.deactivate_collection(collection_id, user_id)
@@ -68,7 +68,7 @@ def deactivate_collection(
 def rotate_api_key(
     collection_id: UUID,
     service: CollectionService = Depends(get_collection_service),
-    user_id: UUID = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user),
 ):
     try:
         return service.rotate_api_key(collection_id, user_id)
