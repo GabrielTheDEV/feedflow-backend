@@ -73,3 +73,14 @@ def deactivate_domain(
         return service.deactivate_domain(domain_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.delete("/{domain_id}", status_code=204)
+def delete_domain(
+    domain_id: UUID,
+    service: DomainService = Depends(get_service),
+):
+    try:
+        service.delete_domain(domain_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

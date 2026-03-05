@@ -17,6 +17,7 @@ class DomainService:
 
 
 
+
     def add_domain(self, collection_id: UUID, domain_raw: str) -> Domain:
         domain_normalized = self._normalize_domain(domain_raw)
 
@@ -34,9 +35,8 @@ class DomainService:
 
         return self.repo.create(domain)
 
-    # =========================
-    # verify
-    # =========================
+   
+
 
     def verify_domain(self, domain_id: UUID) -> Domain:
         domain = self.repo.get_by_id(domain_id)
@@ -48,7 +48,7 @@ class DomainService:
         return self.repo.save(domain)
 
     # =========================
-    # allow check (🔥 CRÍTICO)
+    # allow check 
     # =========================
 
     def assert_domain_allowed(self, collection_id: UUID, origin: str) -> None:
@@ -59,16 +59,13 @@ class DomainService:
         if not allowed:
             raise PermissionError("Domain not allowed")
 
-    # =========================
-    # list
-    # =========================
+   
+
 
     def list_domains(self, collection_id: UUID) -> List[Domain]:
         return self.repo.list_by_collection(collection_id)
 
-    # =========================
-    # deactivate
-    # =========================
+   
 
     def deactivate_domain(self, domain_id: UUID) -> Domain:
         domain = self.repo.get_by_id(domain_id)
@@ -78,3 +75,12 @@ class DomainService:
         domain.active = False
         domain.updated_at = datetime.utcnow()
         return self.repo.save(domain)
+
+
+
+    def delete_domain(self, domain_id: UUID) -> None:
+        domain = self.repo.get_by_id(domain_id)
+        if not domain:
+            raise ValueError("Domain not found")
+
+        self.repo.delete(domain)

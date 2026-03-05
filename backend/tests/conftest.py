@@ -2,10 +2,6 @@ import os
 import sys
 import types
 from pathlib import Path
-from uuid import UUID
-from typing import List, Optional
-
-from sqlmodel import SQLModel, Field, Relationship
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -22,21 +18,10 @@ models_module = types.ModuleType("app.models")
 models_module.__path__ = [str(local_app_path / "models")]
 sys.modules["app.models"] = models_module
 
-# Registra User mínimo para resolver relationship("User") de Collection
-class User(SQLModel, table=True):
-    __tablename__ = "users"
-    id: UUID = Field(primary_key=True)
-    collections: List["Collection"] = Relationship(back_populates="user")
-
-
-class Integration(SQLModel, table=True):
-    __tablename__ = "integrations"
-    id: UUID = Field(primary_key=True)
-    collection_id: UUID = Field(foreign_key="collections.id")
-    collection: Optional["Collection"] = Relationship(back_populates="integrations")
-
-# Precarrega modelos com relacionamentos para evitar falha de mapper
+# Precarrega modelos reais com relacionamentos para evitar falha de mapper
+import app.models.user  # noqa: E402,F401
 import app.models.domain  # noqa: E402,F401
+import app.models.integrations  # noqa: E402,F401
 import app.models.collections  # noqa: E402,F401
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
