@@ -19,8 +19,31 @@ DEACTIVATE_COLLECTION_DOCS = {
 }
 
 
+DELETE_COLLECTION_DOCS = {
+    "summary": "Excluir collection",
+    "description": "Remove definitivamente uma collection do usuário autenticado.",
+    "response_description": "Collection removida",
+    "responses": {
+        403: {
+            "description": "Usuário sem permissão para esta collection",
+        },
+        404: {
+            "description": "Collection não encontrada",
+        },
+    },
+}
+
+
 ROTATE_COLLECTION_KEY_DOCS = {
     "summary": "Rotacionar API key",
     "description": "Gera uma nova API key para a collection.",
     "response_description": "Collection com nova API key",
+    "responses": {
+        403: {
+            "description": "Usuário sem permissão para esta collection",
+        },
+        404: {
+            "description": "Collection não encontrada",
+        },
+    },
 }

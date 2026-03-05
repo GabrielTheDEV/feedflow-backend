@@ -8,7 +8,6 @@ class User(SQLModel, table=True):
     __tablename__ = "users"
 
     id: UUID = Field(primary_key=True)   # id do usuário vem do Supabase (auth.users.id)
-    email: str = Field(index=True, unique=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

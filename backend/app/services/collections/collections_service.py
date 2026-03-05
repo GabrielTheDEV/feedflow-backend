@@ -87,6 +87,20 @@ class CollectionService:
         return self.repo.save(collection)
 
     # =========================
+    # delete
+    # =========================
+    def delete_collection(self, collection_id: UUID, user_id: UUID) -> None:
+        collection = self.repo.get_by_id(collection_id)
+
+        if not collection:
+            raise ValueError("Collection not found")
+
+        if collection.user_id != user_id:
+            raise PermissionError("You do not have access to this collection")
+
+        self.repo.delete(collection)
+
+    # =========================
     # list user collections
     # =========================
     def list_user_collections(self, user_id: UUID):

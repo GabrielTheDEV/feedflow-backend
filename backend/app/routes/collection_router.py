@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlmodel import Session
 from app.database.config import get_db
 from app.dtos.schemas import CollectionCreate, CollectionRead
@@ -12,6 +12,7 @@ from app.docs.swagger.collections_docs import (
     LIST_COLLECTIONS_DOCS,
     DEACTIVATE_COLLECTION_DOCS,
     ROTATE_COLLECTION_KEY_DOCS,
+    DELETE_COLLECTION_DOCS,
 )
 
 router = APIRouter(
@@ -64,14 +65,37 @@ def deactivate_collection(
 
 
 
-@router.post("/{collection_id}/rotate-key", response_model=CollectionRead, **ROTATE_COLLECTION_KEY_DOCS)
+@router.api_route(
+    "/{collection_id}/rotate-key",
+    methods=["POST", "PATCH"],
+    response_model=CollectionRead,
+    **ROTATE_COLLECTION_KEY_DOCS,
+)
 def rotate_api_key(
-    collection_id: UUID,
+    collection_id: UUID = Path(
+        ...,
+        description="ID da collection em formato UUID",
+    ),
     service: CollectionService = Depends(get_collection_service),
     user_id: UUID = Depends(get_current_user),
 ):
     try:
         return service.rotate_api_key(collection_id, user_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+
+@router.delete("/{collection_id}", status_code=204, **DELETE_COLLECTION_DOCS)
+def delete_collection(
+    collection_id: UUID,
+    service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(get_current_user),
+):
+    try:
+        service.delete_collection(collection_id, user_id)
     except PermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:

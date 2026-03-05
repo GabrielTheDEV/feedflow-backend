@@ -1,15 +1,18 @@
 from typing import Optional
 from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, ForeignKey, JSON
 from datetime import datetime
 
-from app.models.enums.integrations import IntegrationService
+from app.models.enums.integrationsServices import IntegrationService
 
 class Integration(SQLModel, table=True):
     __tablename__ = "integrations"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    collection_id: UUID = Field(foreign_key="collections.id", index=True)
+    collection_id: UUID = Field(
+        sa_column=Column(ForeignKey("collections.id", ondelete="CASCADE"), nullable=False, index=True)
+    )
 
     service: IntegrationService = Field(index=True)  # slack, jira, trello
     active: bool = Field(default=True)

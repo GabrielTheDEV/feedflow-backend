@@ -29,5 +29,11 @@ class Collection(SQLModel, table=True):
 
     # relationships
     user: Optional["User"] = Relationship(back_populates="collections")
-    domains: List["Domain"] = Relationship(back_populates="collection")
-    integrations: List["Integration"] = Relationship(back_populates="collection")
+    domains: List["Domain"] = Relationship(
+        back_populates="collection",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "passive_deletes": True},
+    )
+    integrations: List["Integration"] = Relationship(
+        back_populates="collection",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "passive_deletes": True},
+    )

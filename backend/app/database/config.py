@@ -1,6 +1,7 @@
 from sqlmodel  import SQLModel, create_engine, Session
 from app.models.collections import Collection
 from app.models.domain import Domain
+from app.models.integrations import Integration
 from app.models.user import User
 import os
 from dotenv import load_dotenv
