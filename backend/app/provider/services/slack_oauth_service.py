@@ -1,6 +1,3 @@
-"""
-Serviço de integração OAuth 2.0 com Slack
-"""
 from __future__ import annotations
 
 import os
@@ -12,6 +9,11 @@ import httpx
 from supabase import Client
 
 logger = logging.getLogger(__name__)
+
+
+"""
+Serviço de integração OAuth 2.0 com Slack
+"""
 
 class SlackOAuthService:
     """Gerencia autenticação OAuth 2.0 do Slack"""
@@ -25,6 +27,8 @@ class SlackOAuthService:
         if not self.client_id or not self.client_secret:
             raise ValueError("SLACK_CLIENT_ID e SLACK_CLIENT_SECRET são obrigatórios")
 
+
+
     def get_authorization_url(self, state: Optional[str] = None) -> str:
         params = {
             "client_id": self.client_id,
@@ -34,6 +38,8 @@ class SlackOAuthService:
         if state:
             params["state"] = state
         return f"https://slack.com/oauth/v2/authorize?{urlencode(params)}"
+
+
 
     async def exchange_code_for_token(self, code: str) -> Dict[str, Any]:
         async with httpx.AsyncClient() as client:
@@ -71,6 +77,8 @@ class SlackOAuthService:
                 logger.error("Unexpected error during Slack OAuth: %s", str(exc))
                 raise
 
+
+
     def save_integration(self, merchant_id: str, oauth_data: Dict[str, Any]) -> Dict[str, Any]:
         try:
             payload = {
@@ -98,6 +106,8 @@ class SlackOAuthService:
             logger.error("Error saving Slack integration: %s", str(exc))
             raise
 
+
+
     def get_integration(self, merchant_id: str) -> Optional[Dict[str, Any]]:
         try:
             response = (
@@ -111,6 +121,8 @@ class SlackOAuthService:
         except Exception as exc:
             logger.error("Error fetching Slack integration: %s", str(exc))
             return None
+
+
 
     def delete_integration(self, merchant_id: str) -> bool:
         try:
