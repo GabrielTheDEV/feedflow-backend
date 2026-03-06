@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from app.routes.collection_router import get_collection_service
-from app.database.auth_handlers import get_current_user_id
+from app.database.auth_handlers import get_current_user
 
 
 client = TestClient(app)
@@ -24,7 +24,7 @@ def _override_user_id():
 
 def test_deactivate_collection_returns_403_when_not_owner():
     app.dependency_overrides[get_collection_service] = lambda: PermissionDeniedCollectionService()
-    app.dependency_overrides[get_current_user_id] = _override_user_id
+    app.dependency_overrides[get_current_user] = _override_user_id
 
     collection_id = str(uuid4())
     response = client.patch(f"/collections/{collection_id}/deactivate")
@@ -37,7 +37,7 @@ def test_deactivate_collection_returns_403_when_not_owner():
 
 def test_rotate_key_returns_403_when_not_owner():
     app.dependency_overrides[get_collection_service] = lambda: PermissionDeniedCollectionService()
-    app.dependency_overrides[get_current_user_id] = _override_user_id
+    app.dependency_overrides[get_current_user] = _override_user_id
 
     collection_id = str(uuid4())
     response = client.post(f"/collections/{collection_id}/rotate-key")

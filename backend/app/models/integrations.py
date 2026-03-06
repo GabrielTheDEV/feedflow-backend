@@ -20,8 +20,13 @@ class Integration(SQLModel, table=True):
     config_json: Optional[dict] = Field(default=None, sa_column=Column(JSON, nullable=True))
     external_id: Optional[str] = None
 
+    access_token: Optional[str] = None
+    token_expires_at: Optional[datetime] = None
+    
+    refresh_token: Optional[str] = None
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field( default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     # relationships
     collection: Optional["Collection"] = Relationship(back_populates="integrations")
