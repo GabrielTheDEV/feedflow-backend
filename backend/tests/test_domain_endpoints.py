@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from app.routes.domain_router import get_service
+from app.database.auth_handlers import get_current_user
 
 client = TestClient(app)
 
@@ -13,7 +14,7 @@ class FakeDomainService:
     def __init__(self):
         self.domain_id = uuid4()
 
-    def add_domain(self, collection_id, domain):
+    def add_domain(self, collection_id, domain, user_id):
         return {
             "id": self.domain_id,
             "domain": domain,
@@ -22,7 +23,7 @@ class FakeDomainService:
             "created_at": datetime.utcnow(),
         }
 
-    def list_domains(self, collection_id):
+    def list_domains(self, collection_id, user_id):
         return [
             {
                 "id": self.domain_id,
@@ -42,7 +43,7 @@ class FakeDomainService:
             "created_at": datetime.utcnow(),
         }
 
-    def deactivate_domain(self, domain_id):
+    def deactivate_domain(self, domain_id, user_id):
         return {
             "id": domain_id,
             "domain": "example.com",
@@ -52,8 +53,13 @@ class FakeDomainService:
         }
 
 
+def _override_user_id():
+    return uuid4()
+
+
 def test_domain_endpoints_flow():
     app.dependency_overrides[get_service] = lambda: FakeDomainService()
+    app.dependency_overrides[get_current_user] = _override_user_id
     collection_id = str(uuid4())
     domain_id = str(uuid4())
 

@@ -24,3 +24,10 @@ DEACTIVATE_DOMAIN_DOCS = {
     "description": "Desativa um domínio previamente cadastrado.",
     "response_description": "Domínio desativado",
 }
+
+
+ACTIVATE_DOMAIN_DOCS = {
+    "summary": "Ativar domínio",
+    "description": "Ativa um domínio previamente cadastrado.",
+    "response_description": "Domínio ativado",
+}
