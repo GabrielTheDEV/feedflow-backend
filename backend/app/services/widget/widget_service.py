@@ -1,6 +1,3 @@
-"""
-Serviço de integração com Supabase (PostgreSQL + Storage)
-"""
 from __future__ import annotations
 
 import os
@@ -13,14 +10,12 @@ from app.database.config import get_supabase_client
 logger = logging.getLogger(__name__)
 
 
-class SupabaseManager:
-    """
-    Gerencia operações com Supabase Storage e Database
-    """
-
+class WidgetService:
     def __init__(self) -> None:
         self.client: Client = get_supabase_client()
 
+
+    #Storage e Database
     def upload_image(self, image_bytes: bytes, content_type: str = "image/png") -> str:
         """
         Faz upload da imagem para o bucket 'screenshots' e retorna a URL pública.

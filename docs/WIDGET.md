@@ -263,3 +263,45 @@ npm run test:coverage
 - `getNetworkBuffer()`: `NetworkEntry[]`
 
 Todos os métodos são seguros, nunca lançam exceção e podem ser chamados a qualquer momento.
+
+## Fluxo de reports (sem rate limit)
+
+Este é o fluxo atual do endpoint `POST /reports` no backend:
+
+```mermaid
+flowchart TD
+  A[Website] --> B[Widget Script]
+  B --> C[POST /reports]
+
+  C --> D[report_router.send_report]
+  D --> E[WidgetValidator.validate]
+
+  E --> E1[CollectionService.get_active_by_api_key]
+  E --> E2[DomainService.assert_domain_allowed]
+
+  E1 -->|api_key inválida/inativa| X403[403 Invalid API key]
+  E2 -->|domínio não permitido| X403D[403 Domain not allowed]
+
+  E -->|ok| F[ReportDispatcherService.dispatch]
+  F --> G[IntegrationRepository.get_by_collection]
+  G --> H{Há integrações ativas?}
+
+  H -->|não| X404[404 No active integrations]
+  H -->|sim| I[ProviderFactory.get_provider]
+
+  I --> J1[SlackProvider.send_event]
+  I --> J2[JiraProvider.send_event]
+  I --> J3[TrelloProvider.send_event]
+
+  J1 --> K[204 No Content]
+  J2 --> K
+  J3 --> K
+```
+
+### Módulos envolvidos
+
+- `app/routes/report_router.py`: entrada HTTP, extração de `origin`, mapeamento de erros HTTP.
+- `app/services/widget/widget_validators.py`: valida `api_key` e domínio, retorna `collection` somente se ambas passarem.
+- `app/services/widget/report_dispatcher_service.py`: busca integrações ativas e despacha para providers.
+- `app/provider/provider_factory.py`: resolve provider por serviço (`slack`, `jira`, `trello`).
+- `app/provider/services/*_provider.py`: implementação concreta do envio (`send_event`).

@@ -18,9 +18,3 @@ async def root():
         "version": "1.0.0"
     }
 
-@router.get("/health", tags=["Health"], **HEALTH_CHECK_DOCS)
-async def health_check():
-    """
-    Health check simples.
-    """
-    return {"status": "healthy"}
