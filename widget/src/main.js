@@ -129,21 +129,21 @@ import {
     validateForm();
   }
 
-  async function sendFeedback(screenshot, email, message, metadata) {
-    const formData = new FormData();
-    if (screenshot) {
-      formData.append('screenshot', screenshot, 'screenshot.png');
-    }
-    formData.append('api_token', instance.config.apiToken);
-    if (email) formData.append('customer_email', email);
-    if (message) formData.append('customer_message', message);
-    formData.append('metadata', JSON.stringify(metadata));
+  async function sendReport(screenshot, email, message, metadata) {
+    const payload = {
+      title: 'Widget report',
+      message,
+      email,
+      page: window.location.href,
+      metadata,
+      has_screenshot: Boolean(screenshot),
+    };
 
-    const response = await fetch(`${instance.config.apiUrl}/submit-feedback`, {
+    const response = await fetch(`${instance.config.apiUrl}/reports?api_key=${encodeURIComponent(instance.config.apiToken)}`, {
       method: 'POST',
-      body: formData,
+      body: JSON.stringify(payload),
       headers: {
-        'X-API-Token': instance.config.apiToken,
+        'Content-Type': 'application/json',
       },
     });
 
@@ -156,6 +156,11 @@ import {
       }
       throw new Error(errorMessage);
     }
+
+    if (response.status === 204) {
+      return null;
+    }
+
     return response.json();
   }
 
@@ -208,7 +213,7 @@ import {
 
     try {
       const metadata = collectMetadata();
-      await sendFeedback(state.screenshotBlob, email, message, metadata);
+      await sendReport(state.screenshotBlob, email, message, metadata);
       showStatus('✓ Feedback enviado com sucesso! Obrigado.', 'success');
       setTimeout(() => {
         closeModal();

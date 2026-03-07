@@ -38,7 +38,7 @@ O widget suporta dois modos:
 ```
 
 ## Parâmetros suportados
-- `data-api-token` (obrigatório): token do merchant.
+- `data-api-token` (obrigatório): API key da collection (enviada como `api_key`).
 - `data-api-url` (obrigatório): base URL da API.
 - `data-button-text` (opcional): texto do botão.
 - `data-button-position` (opcional): `bottom-right`, `bottom-left`, `top-right`, `top-left`.
@@ -72,13 +72,14 @@ Artefato final para distribuição:
 2. `main.js` monta `window.FeedFlowWidget` e tenta auto-init via `data-*`.
 3. Ao abrir modal, usuário preenche e-mail + descrição.
 4. Captura screenshot via `html2canvas` (preview opcional + fullscreen).
-5. Envio para `POST {apiUrl}/submit-feedback` com `FormData`:
-   - `api_token`
-   - `customer_email`
-   - `customer_message`
-   - `metadata` (JSON)
-   - `screenshot` (quando existir)
-6. Header enviado: `X-API-Token`.
+5. Envio para `POST {apiUrl}/reports?api_key={data-api-token}` com `application/json`.
+6. Payload enviado:
+  - `title`: string fixa (`"Widget report"`)
+  - `message`: descrição digitada pelo usuário
+  - `email`: e-mail digitado pelo usuário
+  - `page`: URL atual da página
+  - `metadata`: objeto técnico coletado pelo widget
+  - `has_screenshot`: `true/false` (neste momento a imagem não é enviada no body)
 
 ## Implementação e build
 
