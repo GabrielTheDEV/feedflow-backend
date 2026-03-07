@@ -5,6 +5,7 @@ from app.provider.services.jira_provider import JiraProvider
 from app.provider.services.trello_provider import TrelloProvider
 
 
+
 class ProviderFactory:
 
     @staticmethod

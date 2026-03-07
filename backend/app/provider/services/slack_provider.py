@@ -9,14 +9,14 @@ from app.provider.base_provider import IntegrationProvider
 class SlackProvider(IntegrationProvider):
 
     def __init__(self):
-        self.client_id = os.getenv("SLACK_CLIENT_ID")
-        self.client_secret = os.getenv("SLACK_CLIENT_SECRET")
+        self.provider_id = os.getenv("SLACK_CLIENT_ID")
+        self.provider_secret = os.getenv("SLACK_CLIENT_SECRET")
         self.redirect_uri = os.getenv("SLACK_REDIRECT_URI")
 
     def get_authorization_url(self, state: Optional[str] = None) -> str:
 
         params = {
-            "client_id": self.client_id,
+            "client_id": self.provider_id,
             "scope": "incoming-webhook,chat:write",
             "redirect_uri": self.redirect_uri,
         }
@@ -35,8 +35,8 @@ class SlackProvider(IntegrationProvider):
             response = await client.post(
                 "https://slack.com/api/oauth.v2.access",
                 data={
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
+                    "client_id": self.provider_id,
+                    "client_secret": self.provider_secret,
                     "code": code,
                     "redirect_uri": self.redirect_uri,
                 },

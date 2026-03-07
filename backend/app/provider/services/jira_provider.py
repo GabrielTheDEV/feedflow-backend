@@ -8,8 +8,8 @@ from app.provider.base_provider import IntegrationProvider
 class JiraProvider(IntegrationProvider):
 
     def __init__(self):
-        self.client_id = os.getenv("JIRA_CLIENT_ID")
-        self.client_secret = os.getenv("JIRA_CLIENT_SECRET")
+        self.provider_id = os.getenv("JIRA_CLIENT_ID")
+        self.provider_secret = os.getenv("JIRA_CLIENT_SECRET")
         self.redirect_uri = os.getenv("JIRA_REDIRECT_URI")
 
     def get_authorization_url(self, state: Optional[str] = None) -> str:
@@ -20,7 +20,7 @@ class JiraProvider(IntegrationProvider):
             "?audience=api.atlassian.com"
             "&prompt=consent"
             "&scope=write:jira-work read:jira-work"
-            f"&client_id={self.client_id}"
+            f"&client_id={self.provider_id}"
             "&response_type=code"
             f"&redirect_uri={self.redirect_uri}"
             f"&state={state_value}"
@@ -37,8 +37,8 @@ class JiraProvider(IntegrationProvider):
                 "https://auth.atlassian.com/oauth/token",
                 json={
                     "grant_type": "authorization_code",
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
+                    "client_id": self.provider_id,
+                    "client_secret": self.provider_secret,
                     "code": code,
                     "redirect_uri": self.redirect_uri,
                 },
