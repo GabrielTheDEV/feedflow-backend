@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
 from sqlmodel import Session
 
 from app.database.config import get_db
+from app.docs.swagger.report_docs import SEND_REPORT_BODY_EXAMPLE, SEND_REPORT_DOCS
 from app.repositories.collection_repository import CollectionRepository
 from app.repositories.domain_repository import DomainRepository
 from app.repositories.integration_repository import IntegrationRepository
@@ -33,11 +34,11 @@ def get_dispatcher(db: Session = Depends(get_db)) -> ReportDispatcherService:
 
 
 
-@router.post("/", status_code=204)
+@router.post("/", status_code=204, **SEND_REPORT_DOCS)
 async def send_report(
-    body: dict,
     request: Request,
-    api_key: str,
+    body: dict = Body(..., example=SEND_REPORT_BODY_EXAMPLE), # doc swagger -> send report body example
+    api_key: str = Query(..., description="API key da collection usada pelo widget"),
     validator: WidgetValidator = Depends(get_widget_validator),
     dispatcher: ReportDispatcherService = Depends(get_dispatcher),
 ):

@@ -13,13 +13,13 @@ class DomainService:
         self.repo = repo
         self.collection_repo = collection_repo
 
-"""Normaliza domínio para comparação segura e consistente."""
+# Normaliza domínio para comparação segura e consistente.
     def _normalize_domain(self, raw: str) -> str:
         return normalize_domain(raw)
 
 
 
-"""Garante que a collection existe e pertence ao usuário autenticado."""
+# Garante que a collection existe e pertence ao usuário autenticado.
     def _assert_collection_ownership(self, collection_id: UUID, user_id: UUID) -> None:
         collection = self.collection_repo.get_by_id(collection_id)
         if not collection:
@@ -29,7 +29,7 @@ class DomainService:
             raise PermissionError("You do not have access to this collection")
 
 
-"""Cria domínio na collection após validar ownership e duplicidade."""
+# Cria domínio na collection após validar ownership e duplicidade.
     def add_domain(self, collection_id: UUID, domain_raw: str, user_id: UUID) -> Domain:
         self._assert_collection_ownership(collection_id, user_id)
 
