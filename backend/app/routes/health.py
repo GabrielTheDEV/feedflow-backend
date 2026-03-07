@@ -13,12 +13,11 @@ router = APIRouter(prefix="/api/v1", tags=["Health"])
 
 @router.get("/", tags=["Health"], **ROOT_STATUS_DOCS)
 async def root():
-    """
-    Endpoint raiz: status do serviço FeedFlow.
-    """
+  
     return {
+        "message": "Hello World",
         "status": "online",
-        "service": "FeedFlow API",
+        "service": "FeedFlow_API-0.1",
         "version": "1.0.0"
     }
 

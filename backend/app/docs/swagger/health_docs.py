@@ -5,8 +5,3 @@ ROOT_STATUS_DOCS = {
 }
 
 
-HEALTH_CHECK_DOCS = {
-    "summary": "Health check",
-    "description": "Endpoint simples para monitoramento de disponibilidade.",
-    "response_description": "Serviço saudável",
-}

@@ -5,7 +5,7 @@ services:
     build: ./backend
     container_name: feedflow_backend
     environment:
-      UPLOAD_DIR: /app/uploads/screenshots
+      # UPLOAD_DIR: /app/uploads/screenshots
       DEBUG: "true"
       HOST: 0.0.0.0
       PORT: 8000
