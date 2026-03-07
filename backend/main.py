@@ -6,9 +6,24 @@ Sistema de captura de feedbacks visuais para lojas Shopify
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 import logging
 
 app = FastAPI(title="FeedFlow API", version="1.0.0")
+
+
+# Custom StaticFiles para desabilitar cache do widget.js 
+# -> atualização imediata para os clientes sem precisar limpar cache
+class FeedFlowStaticFiles(StaticFiles):
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+
+        if isinstance(response, FileResponse) and response.path.endswith("widget.js"):
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+
+        return response
 
 # Configuração de CORS
 app.add_middleware(
@@ -20,9 +35,8 @@ app.add_middleware(
 )
 
 # Monta arquivos estáticos
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", FeedFlowStaticFiles(directory="app/static"), name="static")
 
-# Registro dos routers
 
 from app.routes.health import router as health_router
 from app.routes.collection_router import router as collection_router

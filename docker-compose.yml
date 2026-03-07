@@ -20,7 +20,6 @@ services:
       SLACK_REDIRECT_URI: ${SLACK_REDIRECT_URI}
     volumes:
       - ./backend:/app
-      - uploads_data:/app/uploads
     ports:
       - "8000:8000"
     networks:
