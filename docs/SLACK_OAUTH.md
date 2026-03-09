@@ -22,8 +22,10 @@ Este sistema permite que cada merchant (lojista) conecte seu próprio workspace 
    https://seudominio.com/auth/slack/callback
    ```
 3. Em **"Scopes" → "Bot Token Scopes"**, adicione:
-   - `incoming-webhook`
    - `chat:write`
+  - `channels:read`
+  - `channels:join`
+  - `groups:read`
 
 ### 3. Obter Credenciais
 
@@ -51,7 +53,6 @@ CREATE TABLE slack_integrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     merchant_id UUID NOT NULL UNIQUE,
     access_token TEXT NOT NULL,
-    webhook_url TEXT,
     team_id TEXT NOT NULL,
     team_name TEXT,
     channel_id TEXT,
@@ -118,7 +119,7 @@ await fetch('http://localhost:8000/submit-feedback', {
 
 O backend automaticamente:
 1. Busca a integração do merchant no banco
-2. Usa o `webhook_url` específico daquele merchant
+2. Usa o `bot_token` específico daquele merchant
 3. Envia a notificação para o canal correto
 
 ## Endpoints da API
@@ -242,13 +243,13 @@ Se o usuário clicar em "Cancelar" na tela de autorização:
 
 ---
 
-### Webhook Não Configurado
+### Canal Slack Não Configurado
 
 Se o merchant não tiver conectado o Slack:
 
 **Comportamento:**
-- O sistema tenta usar `SLACK_WEBHOOK_URL` da variável de ambiente (fallback)
-- Se não existir, registra erro no log mas **não falha** o envio do feedback
+- O sistema não envia para Slack sem `bot_token` e `channel_id` válidos
+- O fluxo recomendado é reconectar em `/auth/slack/install` e salvar o canal alvo
 
 ## Arquitetura
 
@@ -286,12 +287,12 @@ Se o merchant não tiver conectado o Slack:
 │ .v2.access           │
 └──────┬───────────────┘
        │
-       │ 5. Retorna access_token + webhook_url
+      │ 5. Retorna bot_token
        ▼
 ┌────────────────────────┐
 │    Supabase            │
 │ slack_integrations     │
-│ merchant_id → webhook  │
+    │ merchant_id → token    │
 └────────────────────────┘
 ```
 

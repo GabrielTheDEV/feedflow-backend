@@ -2,7 +2,7 @@ from unittest.mock import Mock, AsyncMock, patch
 
 import pytest
 
-from app.services.integrations.slack.slack_oauth_service import SlackOAuthService
+from app.utils.slack_oauth_service import SlackOAuthService
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def test_get_authorization_url_basic(oauth_service):
     url = oauth_service.get_authorization_url()
     assert "https://slack.com/oauth/v2/authorize" in url
     assert "client_id=test_client_id" in url
-    assert "scope=incoming-webhook%2Cchat%3Awrite" in url
+    assert "scope=chat%3Awrite%2Cchannels%3Aread%2Cchannels%3Ajoin%2Cgroups%3Aread" in url
 
 
 def test_get_authorization_url_with_state(oauth_service):
@@ -49,7 +49,7 @@ async def test_exchange_code_success(oauth_service):
         "ok": True,
         "access_token": "xoxb-token",
         "team": {"id": "T123", "name": "Team"},
-        "incoming_webhook": {"url": "https://hooks.slack", "channel_id": "C1", "channel": "#general"},
+        "bot_user_id": "B123",
     }
 
     async_client = Mock()
@@ -59,7 +59,7 @@ async def test_exchange_code_success(oauth_service):
         mock_async_client.return_value.__aenter__.return_value = async_client
         data = await oauth_service.exchange_code_for_token("code123")
 
-    assert data["access_token"] == "xoxb-token"
+    assert data["bot_token"] == "xoxb-token"
     assert data["team_id"] == "T123"
 
 
@@ -72,8 +72,7 @@ def test_save_integration_success(oauth_service, mock_supabase_client):
     result = oauth_service.save_integration(
         "m1",
         {
-            "access_token": "x",
-            "webhook_url": "w",
+            "bot_token": "x",
             "team_id": "T1",
             "team_name": "Team",
             "channel_id": "C1",

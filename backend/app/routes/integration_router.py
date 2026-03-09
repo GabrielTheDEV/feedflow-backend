@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
 from app.database.config import get_db
@@ -8,11 +9,14 @@ from app.database.auth_handlers import get_current_user
 from app.repositories.collection_repository import CollectionRepository
 from app.repositories.integration_repository import IntegrationRepository
 from app.services.integrations.integrations_service import IntegrationService
+from app.models.enums.integrationsServices import IntegrationService as IntegrationServiceEnum
 from app.dtos.schemas import IntegrationEnable, IntegrationRead
 from app.docs.swagger.integrations_docs import (
     CREATE_INTEGRATION_DOCS,
     LIST_INTEGRATIONS_DOCS,
     DELETE_INTEGRATION_DOCS,
+    OAUTH_AUTHORIZE_DOCS,
+    OAUTH_CALLBACK_DOCS,
 )
 
 router = APIRouter(
@@ -79,3 +83,40 @@ def delete_integration(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+# ── OAuth Flow ────────────────────────────────────────────
+
+@router.get("/{collection_id}/oauth/{provider}/authorize", **OAUTH_AUTHORIZE_DOCS)
+def oauth_authorize(
+    collection_id: UUID,
+    provider: IntegrationServiceEnum,
+    service: IntegrationService = Depends(get_integration_service),
+    user_id: UUID = Depends(get_current_user),
+):
+    """Redirect user to the provider's OAuth consent screen."""
+    try:
+        url = service.start_oauth(collection_id, user_id, provider)
+        return RedirectResponse(url=url, status_code=302)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{collection_id}/oauth/{provider}/callback", response_model=IntegrationRead, **OAUTH_CALLBACK_DOCS)
+async def oauth_callback(
+    collection_id: UUID,
+    provider: IntegrationServiceEnum,
+    code: str = Query(..., description="Authorization code returned by the provider"),
+    service: IntegrationService = Depends(get_integration_service),
+    user_id: UUID = Depends(get_current_user),
+):
+    """Exchange the OAuth code for tokens and create the integration."""
+    try:
+        integration = await service.complete_oauth(collection_id, user_id, provider, code)
+        return integration
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -11,6 +11,7 @@ from app.docs.swagger.collections_docs import (
     CREATE_COLLECTION_DOCS,
     LIST_COLLECTIONS_DOCS,
     DEACTIVATE_COLLECTION_DOCS,
+    ACTIVATE_COLLECTION_DOCS,
     ROTATE_COLLECTION_KEY_DOCS,
     DELETE_COLLECTION_DOCS,
 )
@@ -62,6 +63,18 @@ def deactivate_collection(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+@router.patch("/{collection_id}/activate", response_model=CollectionRead, **ACTIVATE_COLLECTION_DOCS)
+def activate_collection(
+    collection_id: UUID,
+    service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(get_current_user),
+):
+    try:
+        return service.activate_collection(collection_id, user_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 

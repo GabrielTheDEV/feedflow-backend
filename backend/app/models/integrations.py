@@ -17,13 +17,9 @@ class Integration(SQLModel, table=True):
     service: IntegrationService = Field(index=True)  # slack, jira, trello
     active: bool = Field(default=True)
 
+    # Configuração específica por provider (ex.: Slack: bot_token/channel_id, Jira: cloud_id/project_key)
     config_json: Optional[dict] = Field(default=None, sa_column=Column(JSON, nullable=True))
     external_id: Optional[str] = None
-
-    access_token: Optional[str] = None
-    token_expires_at: Optional[datetime] = None
-    
-    refresh_token: Optional[str] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

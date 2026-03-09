@@ -32,7 +32,7 @@ class SlackOAuthService:
     def get_authorization_url(self, state: Optional[str] = None) -> str:
         params = {
             "client_id": self.client_id,
-            "scope": "incoming-webhook,chat:write",
+            "scope": "chat:write,channels:read,channels:join,groups:read",
             "redirect_uri": self.redirect_uri,
         }
         if state:
@@ -61,12 +61,11 @@ class SlackOAuthService:
                     logger.error("Slack OAuth error: %s", error)
                     raise ValueError(f"Slack OAuth failed: {error}")
                 return {
-                    "access_token": data["access_token"],
-                    "webhook_url": data.get("incoming_webhook", {}).get("url"),
+                    "bot_token": data["access_token"],
                     "team_id": data["team"]["id"],
                     "team_name": data["team"]["name"],
-                    "channel_id": data.get("incoming_webhook", {}).get("channel_id"),
-                    "channel_name": data.get("incoming_webhook", {}).get("channel"),
+                    "channel_id": data.get("channel_id"),
+                    "channel_name": data.get("channel_name"),
                     "scope": data.get("scope", ""),
                     "bot_user_id": data.get("bot_user_id"),
                 }
@@ -83,8 +82,7 @@ class SlackOAuthService:
         try:
             payload = {
                 "merchant_id": merchant_id,
-                "access_token": oauth_data["access_token"],
-                "webhook_url": oauth_data.get("webhook_url"),
+                "access_token": oauth_data["bot_token"],
                 "team_id": oauth_data["team_id"],
                 "team_name": oauth_data.get("team_name"),
                 "channel_id": oauth_data.get("channel_id"),

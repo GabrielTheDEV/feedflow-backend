@@ -10,7 +10,7 @@ Este documento descreve as rotas ativas do backend para facilitar onboarding e d
 
 ### 1) JWT Bearer (usuário autenticado)
 
-Usado nas rotas de collections, domains (exceto verify) e integrations.
+Usado nas rotas de collections, domains (exceto verify), integrations e `/api/v1/me`.
 
 Header:
 
@@ -25,15 +25,6 @@ Usado na rota de ingestão de reports do widget.
 - Query param obrigatório: `api_key`
 - O backend também valida `Origin`/`Referer` contra os domínios permitidos da collection.
 
-### 3) Token legado de feedback
-
-Usado nas rotas legadas de feedback (`/api/v1/submit-feedback` e `/api/v1/feedbacks/{id}`).
-
-- Header: `X-API-Token`
-- Alternativa: `api_token` no form/query
-
----
-
 ## Health
 
 ### GET `/api/v1/`
@@ -44,17 +35,18 @@ Usado nas rotas legadas de feedback (`/api/v1/submit-feedback` e `/api/v1/feedba
 
 ```json
 {
+  "message": "Hello World",
   "status": "online",
-  "service": "FeedFlow API",
+  "service": "FeedFlow_API-0.1",
   "version": "1.0.0"
 }
 ```
 
 ---
 
-## Auth
+## User Context
 
-### GET `/auth/me`
+### GET `/api/v1/me`
 
 - Objetivo: validar token e retornar `user_id` autenticado.
 - Auth: JWT Bearer obrigatório.
@@ -97,6 +89,13 @@ Erros comuns:
 ### PATCH `/collections/{collection_id}/deactivate`
 
 - Objetivo: desativar collection.
+- Auth: JWT Bearer + ownership.
+- Resposta: `200 CollectionRead`.
+- Erros: `403`, `404`.
+
+### PATCH `/collections/{collection_id}/activate`
+
+- Objetivo: ativar collection.
 - Auth: JWT Bearer + ownership.
 - Resposta: `200 CollectionRead`.
 - Erros: `403`, `404`.
@@ -199,6 +198,28 @@ Erros comuns:
 - Resposta: `204`.
 - Erros: `403`, `404`.
 
+### GET `/integrations/{collection_id}/oauth/{provider}/authorize`
+
+- Objetivo: redirecionar o usuário para a tela de consentimento OAuth do provider.
+- Auth: JWT Bearer + ownership.
+- `provider` aceita: `slack`, `jira`, `trello`.
+- Resposta: `302` redirect para o provider.
+- Erros: `400`, `403`.
+
+### GET `/integrations/{collection_id}/oauth/{provider}/callback?code=<auth_code>`
+
+- Objetivo: receber o authorization code do provider, trocar por tokens e criar a integração com `config_json` preenchido.
+- Auth: JWT Bearer + ownership.
+- Query param obrigatório: `code` (retornado pelo provider após autorização).
+- Resposta: `200 IntegrationRead`.
+- Erros: `400` (code inválido ou falha na troca de token), `403`.
+
+**Fluxo OAuth resumido:**
+
+1. Frontend chama `/oauth/{provider}/authorize` → backend redireciona (302) para o provider.
+2. Usuário autoriza → provider redireciona para `/oauth/{provider}/callback?code=xxx`.
+3. Backend troca code por tokens → salva em `config_json` → retorna `IntegrationRead`.
+
 ---
 
 ## Reports (Widget - fluxo atual)
@@ -232,37 +253,19 @@ Respostas:
 
 ---
 
-## Feedback legado (`/api/v1`)
-
-> Essas rotas coexistem com o novo fluxo `/reports`.
-
-### POST `/api/v1/submit-feedback`
-
-- Objetivo: ingestão legada via `multipart/form-data`.
-- Auth: `X-API-Token` (ou `api_token` no form).
-- Campos: `screenshot`, `customer_email`, `customer_message`, `metadata`.
-- Resposta: `201 SuccessResponse`.
-
-### GET `/api/v1/feedbacks/{feedback_id}`
-
-- Objetivo: consultar feedback específico.
-- Auth: `X-API-Token` (ou `api_token`).
-- Resposta: `200 FeedbackResponse`.
-
----
-
 ## Arquivo estático do widget
 
 ### GET `/static/widget.js`
 
 - Objetivo: servir script do widget para sites clientes.
 - Auth: não exige.
+- Cache: desabilitado para atualização imediata (`Cache-Control: no-cache, no-store, must-revalidate`).
 
 ---
 
 ## Dicas para dev
 
-- Para integração nova do widget, use `/reports` (não `/api/v1/submit-feedback`).
+
 - Antes de testar `/reports`, garanta:
   1. collection ativa,
   2. domínio ativo + verificado,

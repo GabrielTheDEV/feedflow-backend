@@ -71,9 +71,15 @@ def test_slack_get_authorization_url(slack_provider):
 
 
 @pytest.mark.asyncio
-async def test_slack_send_event_requires_webhook(slack_provider):
-    with pytest.raises(ValueError, match="webhook_url is required"):
+async def test_slack_send_event_requires_bot_token(slack_provider):
+    with pytest.raises(ValueError, match="Bot token is required"):
         await slack_provider.send_event({}, "hello")
+
+
+@pytest.mark.asyncio
+async def test_slack_send_event_requires_channel(slack_provider):
+    with pytest.raises(ValueError, match="Channel Id required"):
+        await slack_provider.send_event({"bot_token": "xoxb-test"}, "hello")
 
 
 @pytest.mark.asyncio
@@ -83,8 +89,8 @@ async def test_slack_exchange_code_success(slack_provider):
     mock_response.json.return_value = {
         "ok": True,
         "access_token": "xoxb-token",
-        "incoming_webhook": {"url": "https://hooks.slack", "channel_id": "C1"},
-        "team": {"id": "T1"},
+        "team": {"id": "T1", "name": "Workspace"},
+        "app_id": "A1",
     }
 
     async_client = Mock()
@@ -94,7 +100,7 @@ async def test_slack_exchange_code_success(slack_provider):
         mock_async_client.return_value.__aenter__.return_value = async_client
         data = await slack_provider.exchange_code_for_token("code123")
 
-    assert data["access_token"] == "xoxb-token"
+    assert data["bot_token"] == "xoxb-token"
 
 
 @pytest.mark.asyncio

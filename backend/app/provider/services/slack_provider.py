@@ -13,11 +13,14 @@ class SlackProvider(IntegrationProvider):
         self.provider_secret = os.getenv("SLACK_CLIENT_SECRET")
         self.redirect_uri = os.getenv("SLACK_REDIRECT_URI")
 
+
+
+
     def get_authorization_url(self, state: Optional[str] = None) -> str:
 
         params = {
             "client_id": self.provider_id,
-            "scope": "incoming-webhook,chat:write",
+            "scope": "chat:write,channels:read,channels:join,groups:read",
             "redirect_uri": self.redirect_uri,
         }
 
@@ -49,30 +52,66 @@ class SlackProvider(IntegrationProvider):
             raise ValueError(f"Slack OAuth failed: {data.get('error', 'unknown_error')}")
 
         return {
-            "access_token": data["access_token"],
-            "webhook_url": data["incoming_webhook"]["url"],
+            "bot_token": data["access_token"],
             "team_id": data["team"]["id"],
-            "channel_id": data["incoming_webhook"]["channel_id"],
+            "team_name": data["team"].get("name"),
+            "app_id": data["app_id"],
+            "bot_user_id": data.get("bot_user_id"),
+            "scope": data.get("scope", ""),
         }
 
 
     async def send_event(self, config: Dict[str, Any], message: str) -> None:
-        webhook_url = config.get("webhook_url")
-        if not webhook_url:
-            raise ValueError("webhook_url is required")
+        token = config.get("bot_token") or config.get("access_token")
+        channel = config.get("channel_id")
+
+        if not token :
+            raise ValueError("Bot token is required")
+       
+        if not channel:
+            raise ValueError("Channel Id required")
+
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                webhook_url,
-                json={"text": message}
+                "https://slack.com/api/chat.postMessage",
+                headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+                },
+                json={
+                    "channel": channel,
+                    "text": message
+                }
             )
             response.raise_for_status()
+            data = response.json()
+
+            if not data.get("ok"):
+                raise ValueError(f"Slack postMessage failed: {data.get('error', 'unknown_error')}")
 
 
     async def validate_connection(self, config: Dict[str, Any]) -> bool:
-
         try:
-            await self.send_event(config, "FeedFlow connection test")
+            token = config.get("bot_token") or config.get("access_token")
+
+            if not token:
+                raise ValueError("Bot token is required")
+
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://slack.com/api/auth.test",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+
+                if not data.get("ok"):
+                    return False
+
             return True
         except (httpx.HTTPError, ValueError):
             return False

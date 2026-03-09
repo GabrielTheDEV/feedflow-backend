@@ -19,6 +19,13 @@ DEACTIVATE_COLLECTION_DOCS = {
 }
 
 
+ACTIVATE_COLLECTION_DOCS = {
+    "summary": "Ativar collection",
+    "description": "Marca uma collection como ativa.",
+    "response_description": "Collection ativada",
+}
+
+
 DELETE_COLLECTION_DOCS = {
     "summary": "Excluir collection",
     "description": "Remove definitivamente uma collection do usuário autenticado.",

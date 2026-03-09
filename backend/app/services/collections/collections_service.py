@@ -64,10 +64,23 @@ class CollectionService:
 
         return self.repo.save(collection)
 
-    # def _assert_collection_limit(self, user_id: UUID):
-    #     count = len(self.repo.list_by_user(user_id))
-    #     if count >= plan_limit:
-    #         raise ValueError("Collection limit reached")
+    # =========================
+    # activate
+    # =========================
+    def activate_collection(self, collection_id: UUID, user_id: UUID) -> Collection:
+        collection = self.repo.get_by_id(collection_id)
+
+        if not collection:
+            raise ValueError("Collection not found")
+
+        if collection.user_id != user_id:
+            raise PermissionError("You do not have access to this collection")
+
+        collection.active = True
+        collection.updated_at = datetime.utcnow()
+
+        return self.repo.save(collection)
+
 
 # =========================
         # rotate api key
