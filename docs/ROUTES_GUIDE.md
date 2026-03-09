@@ -200,10 +200,20 @@ Erros comuns:
 
 ### GET `/integrations/{collection_id}/oauth/{provider}/authorize`
 
-- Objetivo: redirecionar o usuário para a tela de consentimento OAuth do provider.
+- Objetivo: gerar URL de autorização OAuth do provider.
 - Auth: JWT Bearer + ownership.
 - `provider` aceita: `slack`, `jira`, `trello`.
-- Resposta: `302` redirect para o provider.
+- Query params opcionais:
+  - `redirect` (bool, default `true`): se `true`, redireciona (302) para o provider. Se `false`, retorna JSON com a URL.
+- Resposta com `redirect=true` (default): `302` redirect para o provider.
+- Resposta com `redirect=false`: `200`
+
+```json
+{
+  "authorization_url": "https://slack.com/oauth/v2/authorize?..."
+}
+```
+
 - Erros: `400`, `403`.
 
 ### GET `/integrations/{collection_id}/oauth/{provider}/callback?code=<auth_code>`

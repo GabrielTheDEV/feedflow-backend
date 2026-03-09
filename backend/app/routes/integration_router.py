@@ -53,6 +53,7 @@ def create_integration(
 
 
 
+
 @router.get("/{collection_id}", response_model=list[IntegrationRead], **LIST_INTEGRATIONS_DOCS)
 def list_integrations(
     collection_id: UUID,
@@ -66,6 +67,7 @@ def list_integrations(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
 
 
 
@@ -85,23 +87,30 @@ def delete_integration(
         raise HTTPException(status_code=404, detail=str(e))
 
 
+
 # ── OAuth Flow ────────────────────────────────────────────
 
 @router.get("/{collection_id}/oauth/{provider}/authorize", **OAUTH_AUTHORIZE_DOCS)
 def oauth_authorize(
     collection_id: UUID,
     provider: IntegrationServiceEnum,
+    redirect: bool = Query(True, description="Se true, redireciona (302). Se false, retorna JSON com a URL."),
     service: IntegrationService = Depends(get_integration_service),
     user_id: UUID = Depends(get_current_user),
 ):
-    """Redirect user to the provider's OAuth consent screen."""
+    """Generate the provider's OAuth authorization URL."""
     try:
         url = service.start_oauth(collection_id, user_id, provider)
-        return RedirectResponse(url=url, status_code=302)
+
+        if redirect:
+            return RedirectResponse(url=url, status_code=302)
+
+        return {"authorization_url": url}
     except PermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 
 @router.get("/{collection_id}/oauth/{provider}/callback", response_model=IntegrationRead, **OAUTH_CALLBACK_DOCS)
