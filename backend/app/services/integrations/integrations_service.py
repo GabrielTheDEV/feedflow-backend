@@ -6,6 +6,7 @@ from app.models.enums.integrationsServices import IntegrationService as Integrat
 from app.repositories.collection_repository import CollectionRepository
 from app.repositories.integration_repository import IntegrationRepository
 from app.provider.provider_factory import ProviderFactory
+from app.utils.oauth_state import generate_state, verify_state
 
 
 class IntegrationService:
@@ -57,14 +58,18 @@ class IntegrationService:
         """Generate the OAuth authorization URL for a provider."""
         self._get_owned_collection(collection_id, user_id)
 
-        # state codifica collection_id + service para o callback
-        state = f"{collection_id}:{service.value}"
+        # state assinado com HMAC (collection_id + user_id + service + timestamp)
+        state = generate_state(collection_id, user_id, service)
         provider = ProviderFactory.get_provider(service)
         return provider.get_authorization_url(state=state)
 
 
-    async def complete_oauth(self, collection_id: UUID, user_id: UUID, service: IntegrationServiceEnum, code: str) -> Integration:
-        """Exchange OAuth code for tokens and persist as integration config."""
+    async def complete_oauth(self, state: str, code: str) -> Integration:
+        """Validate HMAC state, exchange OAuth code and persist integration config."""
+        # Extrai e valida dados do state (levanta ValueError se inválido/expirado)
+        collection_id, user_id, service = verify_state(state)
+
+        # Valida ownership
         self._get_owned_collection(collection_id, user_id)
 
         provider = ProviderFactory.get_provider(service)

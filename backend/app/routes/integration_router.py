@@ -113,17 +113,15 @@ def oauth_authorize(
 
 
 
-@router.get("/{collection_id}/oauth/{provider}/callback", response_model=IntegrationRead, **OAUTH_CALLBACK_DOCS)
+@router.get("/oauth/callback", response_model=IntegrationRead, **OAUTH_CALLBACK_DOCS)
 async def oauth_callback(
-    collection_id: UUID,
-    provider: IntegrationServiceEnum,
+    state: str = Query(..., description="Signed state returned by the provider"),
     code: str = Query(..., description="Authorization code returned by the provider"),
     service: IntegrationService = Depends(get_integration_service),
-    user_id: UUID = Depends(get_current_user),
 ):
-    """Exchange the OAuth code for tokens and create the integration."""
+    """Exchange the OAuth code for tokens and create the integration (public — validated via HMAC state)."""
     try:
-        integration = await service.complete_oauth(collection_id, user_id, provider, code)
+        integration = await service.complete_oauth(state, code)
         return integration
     except PermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))

@@ -216,13 +216,15 @@ Erros comuns:
 
 - Erros: `400`, `403`.
 
-### GET `/integrations/{collection_id}/oauth/{provider}/callback?code=<auth_code>`
+### GET `/integrations/oauth/callback?state=<signed_state>&code=<auth_code>`
 
-- Objetivo: receber o authorization code do provider, trocar por tokens e criar a integração com `config_json` preenchido.
-- Auth: JWT Bearer + ownership.
-- Query param obrigatório: `code` (retornado pelo provider após autorização).
+- Objetivo: receber o authorization code do provider, validar state HMAC e criar a integração com `config_json` preenchido.
+- Auth: **público** — segurança via HMAC-SHA256 no state (gerado pelo authorize, que exige JWT).
+- Query params obrigatórios:
+  - `state`: assinado com HMAC, contém collection_id, user_id, service e timestamp.
+  - `code`: retornado pelo provider após autorização.
 - Resposta: `200 IntegrationRead`.
-- Erros: `400` (code inválido ou falha na troca de token), `403`.
+- Erros: `400` (state inválido/expirado ou falha na troca de token), `403`.
 
 **Fluxo OAuth resumido:**
 
