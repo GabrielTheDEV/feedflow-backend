@@ -14,10 +14,10 @@ services:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
       SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY}
-      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
       SLACK_CLIENT_ID: ${SLACK_CLIENT_ID}
       SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET}
       SLACK_REDIRECT_URI: ${SLACK_REDIRECT_URI}
+      OAUTH_STATE_SECRET: ${OAUTH_STATE_SECRET}
     volumes:
       - ./backend:/app
     ports:
@@ -26,15 +26,13 @@ services:
       - feedflow_network
     restart: unless-stopped
 
-  # ngrok tunnel for OAuth (HTTPS)
-  ngrok:
-    image: ngrok/ngrok:latest
-    container_name: feedflow_ngrok
-    command: http backend:8000
+  # Cloudflare Tunnel for OAuth (HTTPS)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: feedflow_tunnel
+    command: tunnel --no-autoupdate run
     environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
-    ports:
-      - "4040:4040"
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - backend
     networks:
