@@ -24,7 +24,7 @@ EXPOSE 8000
 
 
 # Comando padrão
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Script para rodar testes e limpar caches (exemplo para CI ou execução manual)
 #find . -type d -name "__pycache__" -exec rm -rf {} + 
