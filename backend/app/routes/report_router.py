@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, sta
 from sqlmodel import Session
 
 from app.database.config import get_db
-from app.docs.swagger.report_docs import SEND_REPORT_BODY_EXAMPLE, SEND_REPORT_DOCS
+from app.swagger.report_docs import SEND_REPORT_BODY_EXAMPLE, SEND_REPORT_DOCS
 from app.repositories.collection_repository import CollectionRepository
 from app.repositories.domain_repository import DomainRepository
 from app.repositories.integration_repository import IntegrationRepository

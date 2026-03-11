@@ -11,7 +11,7 @@ from app.repositories.integration_repository import IntegrationRepository
 from app.services.integrations.integrations_service import IntegrationService
 from app.models.enums.integrationsServices import IntegrationService as IntegrationServiceEnum
 from app.dtos.schemas import IntegrationEnable, IntegrationRead
-from app.docs.swagger.integrations_docs import (
+from app.swagger.integrations_docs import (
     CREATE_INTEGRATION_DOCS,
     LIST_INTEGRATIONS_DOCS,
     DELETE_INTEGRATION_DOCS,

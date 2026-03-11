@@ -8,7 +8,7 @@ from app.repositories.collection_repository import CollectionRepository
 from app.repositories.domain_repository import DomainRepository
 from app.services.collections.domain_service import DomainService
 from app.dtos.schemas import DomainCreate, DomainRead
-from app.docs.swagger.domains_docs import (
+from app.swagger.domains_docs import (
     ADD_DOMAIN_DOCS,
     LIST_DOMAINS_DOCS,
     VERIFY_DOMAIN_DOCS,

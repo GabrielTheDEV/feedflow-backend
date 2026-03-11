@@ -1,3 +1,12 @@
+GET_COLLECTION_BY_ID_DOCS = {
+    "summary": "Buscar collection por ID",
+    "description": "Retorna os dados de uma collection específica do usuário autenticado.",
+    "response_description": "Dados da collection",
+    "responses": {
+        403: {"description": "Usuário sem permissão para esta collection"},
+        404: {"description": "Collection não encontrada"},
+    },
+}
 CREATE_COLLECTION_DOCS = {
     "summary": "Criar collection",
     "description": "Cria uma collection para o usuário autenticado e gera API key inicial.",

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.docs.swagger.health_docs import ROOT_STATUS_DOCS
-from app.docs.swagger.auth_docs import ME_DOCS
+from app.swagger.health_docs import ROOT_STATUS_DOCS
 import logging
 from app.database.auth_handlers import get_current_user
 
@@ -22,7 +21,7 @@ async def root():
     }
 
 
-@router.get("/me", **ME_DOCS)
+@router.get("/me",)
 async def get_me(user_id: str = Depends(get_current_user)):
     try:
         return {"user_id": user_id}

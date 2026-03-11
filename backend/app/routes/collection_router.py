@@ -7,13 +7,14 @@ from app.dtos.schemas import CollectionCreate, CollectionRead
 from app.repositories.collection_repository import CollectionRepository
 from app.services.collections.collections_service import CollectionService
 from app.database.auth_handlers import get_current_user
-from app.docs.swagger.collections_docs import (
+from app.swagger.collections_docs import (
     CREATE_COLLECTION_DOCS,
     LIST_COLLECTIONS_DOCS,
     DEACTIVATE_COLLECTION_DOCS,
     ACTIVATE_COLLECTION_DOCS,
     ROTATE_COLLECTION_KEY_DOCS,
     DELETE_COLLECTION_DOCS,
+    GET_COLLECTION_BY_ID_DOCS,
 )
 
 router = APIRouter(
@@ -24,6 +25,7 @@ router = APIRouter(
 def get_collection_service(db: Session = Depends(get_db)) -> CollectionService:
     repo = CollectionRepository(db)
     return CollectionService(repo)
+
 
 
 
@@ -47,6 +49,19 @@ def list_collections(
 ):
     return service.list_user_collections(user_id)
 
+
+@router.get("/{collection_id}", response_model=CollectionRead, **GET_COLLECTION_BY_ID_DOCS)
+def get_collection_by_id(
+    collection_id: UUID,
+    service: CollectionService = Depends(get_collection_service),
+    user_id: UUID = Depends(get_current_user),
+):
+    try:
+        return service.get_collection(collection_id, user_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 
