@@ -10,13 +10,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements
-COPY backend/requirements.txt .
+COPY requirements.txt .
 
 # Instalar dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código da aplicação
-COPY backend/. .
+COPY . .
 
 
 # Expor porta

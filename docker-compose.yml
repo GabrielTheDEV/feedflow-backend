@@ -4,6 +4,8 @@ services:
   backend:
     build: ./backend
     container_name: feedflow_backend
+    env_file:
+      - .env
     environment:
       # UPLOAD_DIR: /app/uploads/screenshots
       DEBUG: "true"
@@ -22,8 +24,6 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
-    networks:
-      - feedflow_network
     restart: unless-stopped
 
 volumes:
