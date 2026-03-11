@@ -30,6 +30,3 @@ volumes:
   uploads_data:
     driver: local
 
-networks:
-  feedflow_network:
-    driver: bridge
