@@ -26,19 +26,6 @@ services:
       - feedflow_network
     restart: unless-stopped
 
-  # Cloudflare Tunnel for OAuth (HTTPS)
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: feedflow_tunnel
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-    depends_on:
-      - backend
-    networks:
-      - feedflow_network
-    restart: unless-stopped
-
 volumes:
   uploads_data:
     driver: local
